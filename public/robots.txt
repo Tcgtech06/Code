@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://tcgtech.in/sitemap.xml
+
+# Allow search engines to crawl all important pages
+Allow: /about
+Allow: /careers
+Allow: /contact
+Allow: /terms
+
+# Block admin and private directories if they exist
+Disallow: /admin/
+Disallow: /private/
+Disallow: /.env
+Disallow: /node_modules/
+
+# Crawl delay (optional)
+Crawl-delay: 1

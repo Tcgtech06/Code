@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luna Backend Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            border-left: 4px solid #10b981;
+            background: #f0fdf4;
+        }
+        .error {
+            border-left: 4px solid #ef4444;
+            background: #fef2f2;
+        }
+        .info {
+            border-left: 4px solid #3b82f6;
+            background: #eff6ff;
+        }
+        .loading {
+            color: #667eea;
+            font-style: italic;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        label {
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin-top: 10px;
+        }
+        .mandatory {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Luna Backend API Tester</h1>
+        <p>Testing backend: <strong>https://tcgtech-luna06.hf.space</strong></p>
+
+        <!-- Test 1: Chat Endpoint -->
+        <div class="test-section">
+            <h2>Test 1: Chat Endpoint</h2>
+            <p>Send a message to Luna and check the response</p>
+            <label>Message:</label>
+            <input type="text" id="chatMessage" value="Hi Luna, I need a website" placeholder="Type your message...">
+            <button onclick="testChat()">Test Chat</button>
+            <div id="chatResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 2: Lead Submission -->
+        <div class="test-section">
+            <h2>Test 2: Lead Submission to WhatsApp</h2>
+            <p>Test if leads are being forwarded to WhatsApp correctly</p>
+            
+            <label>Name <span class="mandatory">*</span>:</label>
+            <input type="text" id="leadName" value="Test User" placeholder="Enter name">
+            
+            <label>Phone <span class="mandatory">*</span>:</label>
+            <input type="text" id="leadPhone" value="9791962802" placeholder="Enter phone number">
+            
+            <label>Email:</label>
+            <input type="email" id="leadEmail" value="test@example.com" placeholder="Enter email">
+            
+            <label>Service/Category <span class="mandatory">*</span>:</label>
+            <input type="text" id="leadService" value="Web Development" placeholder="Enter service">
+            
+            <label>Package:</label>
+            <input type="text" id="leadPackage" value="ELITE" placeholder="Enter package">
+            
+            <label>Budget <span class="mandatory">*</span>:</label>
+            <input type="text" id="leadBudget" value="20k" placeholder="Enter budget">
+            
+            <label>Timeline:</label>
+            <input type="text" id="leadTimeline" value="30 days" placeholder="Enter timeline">
+            
+            <button onclick="testLeadSubmission()">Submit Lead</button>
+            <div id="leadResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 3: Conversation with Lead Collection -->
+        <div class="test-section">
+            <h2>Test 3: Full Conversation Flow</h2>
+            <p>Simulate a complete conversation where Luna collects lead information</p>
+            <button onclick="testFullConversation()">Start Conversation Test</button>
+            <div id="conversationResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 4: Check Mandatory Fields -->
+        <div class="test-section">
+            <h2>Test 4: Mandatory Field Validation</h2>
+            <p>Test if backend validates mandatory fields (Name, Phone, Category, Budget)</p>
+            <button onclick="testMandatoryFields()">Test Validation</button>
+            <div id="validationResult" class="result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://tcgtech-luna06.hf.space';
+        const WHATSAPP_NUMBERS = ['919791962802', '919442961732'];
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'result loading';
+            element.textContent = 'Loading...';
+        }
+
+        async function testChat() {
+            const message = document.getElementById('chatMessage').value;
+            showLoading('chatResult');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        files: [],
+                        conversation_history: [],
+                        user_profile: { user_id: 'test_' + Date.now() }
+                    })
+                });
+
+                const data = await response.json();
+                
+                let result = '✅ Chat Endpoint Working!\n\n';
+                result += 'Status: ' + response.status + '\n';
+                result += 'Response:\n' + JSON.stringify(data, null, 2);
+                
+                showResult('chatResult', result, 'success');
+            } catch (error) {
+                showResult('chatResult', '❌ Error:\n' + error.message, 'error');
+            }
+        }
+
+        async function testLeadSubmission() {
+            const leadData = {
+                name: document.getElementById('leadName').value,
+                phone: document.getElementById('leadPhone').value,
+                email: document.getElementById('leadEmail').value || null,
+                service: document.getElementById('leadService').value || null,
+                package: document.getElementById('leadPackage').value || null,
+                budget: document.getElementById('leadBudget').value || null,
+                timeline: document.getElementById('leadTimeline').value || null
+            };
+
+            // Check mandatory fields
+            if (!leadData.name || !leadData.phone || !leadData.service || !leadData.budget) {
+                showResult('leadResult', '❌ Missing mandatory fields!\n\nRequired: Name, Phone, Service/Category, Budget', 'error');
+                return;
+            }
+
+            showLoading('leadResult');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/send-lead`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(leadData)
+                });
+
+                const data = await response.json();
+                
+                let result = '📊 Lead Submission Test Results:\n\n';
+                result += 'Status: ' + response.status + '\n';
+                result += 'Response:\n' + JSON.stringify(data, null, 2) + '\n\n';
+                
+                // Check if WhatsApp URL is present
+                if (data.whatsapp_url) {
+                    result += '✅ WhatsApp URL Generated!\n';
+                    result += 'URL: ' + data.whatsapp_url + '\n\n';
+                    
+                    // Check if message is properly formatted
+                    const urlParams = new URLSearchParams(data.whatsapp_url.split('?')[1]);
+                    const message = urlParams.get('text');
+                    if (message) {
+                        result += '✅ Message is present in URL\n';
+                        result += 'Decoded Message:\n' + decodeURIComponent(message) + '\n\n';
+                    } else {
+                        result += '❌ Message NOT found in URL!\n\n';
+                    }
+                    
+                    // Check if both numbers should receive
+                    result += '📱 WhatsApp Numbers:\n';
+                    result += 'Primary: ' + WHATSAPP_NUMBERS[0] + '\n';
+                    result += 'Secondary: ' + WHATSAPP_NUMBERS[1] + '\n';
+                    result += '(Frontend sends to both numbers)\n';
+                } else {
+                    result += '❌ WhatsApp URL NOT generated!\n';
+                }
+                
+                showResult('leadResult', result, data.whatsapp_url ? 'success' : 'error');
+            } catch (error) {
+                showResult('leadResult', '❌ Error:\n' + error.message, 'error');
+            }
+        }
+
+        async function testFullConversation() {
+            showLoading('conversationResult');
+            let result = '🔄 Testing Full Conversation Flow:\n\n';
+
+            try {
+                // Step 1: Initial greeting
+                result += '1️⃣ User: Hi Luna\n';
+                const response1 = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: 'Hi Luna',
+                        files: [],
+                        conversation_history: [],
+                        user_profile: { user_id: 'test_conv_' + Date.now() }
+                    })
+                });
+                const data1 = await response1.json();
+                result += '   Luna: ' + data1.response.substring(0, 100) + '...\n\n';
+
+                // Step 2: Express interest
+                result += '2️⃣ User: I need a website for my business\n';
+                const response2 = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: 'I need a website for my business',
+                        files: [],
+                        conversation_history: [
+                            { role: 'user', content: 'Hi Luna' },
+                            { role: 'assistant', content: data1.response }
+                        ],
+                        user_profile: { user_id: 'test_conv_' + Date.now() }
+                    })
+                });
+                const data2 = await response2.json();
+                result += '   Luna: ' + data2.response.substring(0, 100) + '...\n\n';
+
+                // Step 3: Provide details
+                result += '3️⃣ User: Name: Test User, Email: test@example.com, Contact: 9791962802, Budget: 20k, Timeline: 30 days\n';
+                const response3 = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: 'Name: Test User, Email: test@example.com, Contact: 9791962802, Budget: 20k, Timeline: 30 days',
+                        files: [],
+                        conversation_history: [
+                            { role: 'user', content: 'Hi Luna' },
+                            { role: 'assistant', content: data1.response },
+                            { role: 'user', content: 'I need a website for my business' },
+                            { role: 'assistant', content: data2.response }
+                        ],
+                        user_profile: { user_id: 'test_conv_' + Date.now() }
+                    })
+                });
+                const data3 = await response3.json();
+                result += '   Luna: ' + data3.response + '\n\n';
+
+                // Check if Luna is showing lead details or thanking user
+                if (data3.response.includes('Name:') && data3.response.includes('Contact:')) {
+                    result += '❌ ISSUE FOUND: Luna is showing lead details in chat!\n';
+                    result += '   Expected: Luna should thank user by name, not show lead details\n';
+                } else if (data3.response.toLowerCase().includes('thank')) {
+                    result += '✅ GOOD: Luna is thanking the user!\n';
+                } else {
+                    result += '⚠️ UNCLEAR: Response doesn\'t show lead details or thank message\n';
+                }
+
+                showResult('conversationResult', result, 'info');
+            } catch (error) {
+                showResult('conversationResult', result + '\n❌ Error:\n' + error.message, 'error');
+            }
+        }
+
+        async function testMandatoryFields() {
+            showLoading('validationResult');
+            let result = '🔍 Testing Mandatory Field Validation:\n\n';
+
+            const testCases = [
+                {
+                    name: 'Missing Name',
+                    data: { phone: '9791962802', service: 'Web Development', budget: '20k' },
+                    shouldFail: true
+                },
+                {
+                    name: 'Missing Phone',
+                    data: { name: 'Test User', service: 'Web Development', budget: '20k' },
+                    shouldFail: true
+                },
+                {
+                    name: 'Missing Service/Category',
+                    data: { name: 'Test User', phone: '9791962802', budget: '20k' },
+                    shouldFail: true
+                },
+                {
+                    name: 'Missing Budget',
+                    data: { name: 'Test User', phone: '9791962802', service: 'Web Development' },
+                    shouldFail: true
+                },
+                {
+                    name: 'All Mandatory Fields Present',
+                    data: { name: 'Test User', phone: '9791962802', service: 'Web Development', budget: '20k' },
+                    shouldFail: false
+                }
+            ];
+
+            for (const testCase of testCases) {
+                result += `Testing: ${testCase.name}\n`;
+                try {
+                    const response = await fetch(`${API_BASE_URL}/send-lead`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(testCase.data)
+                    });
+
+                    if (testCase.shouldFail && response.status === 400) {
+                        result += '  ✅ Correctly rejected\n';
+                    } else if (!testCase.shouldFail && response.status === 200) {
+                        result += '  ✅ Correctly accepted\n';
+                    } else {
+                        result += `  ⚠️ Unexpected status: ${response.status}\n`;
+                    }
+                } catch (error) {
+                    result += `  ❌ Error: ${error.message}\n`;
+                }
+                result += '\n';
+            }
+
+            showResult('validationResult', result, 'info');
+        }
+    </script>
+</body>
+</html>
