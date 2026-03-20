@@ -24,3 +24,6 @@ lerna-debug.log*
 *.sln
 *.sw?
 node_modules
+# Ignore problematic files with special characters
+*Select-String*
+" *"
