@@ -32,6 +32,7 @@ interface Invoice {
   invoiceNumber: string;
   date: string;
   dueDate: string;
+  hsnCode?: string;
   clientName: string;
   clientEmail: string;
   clientAddress: string;
@@ -41,6 +42,16 @@ interface Invoice {
   taxRate: number;
   taxAmount: number;
   total: number;
+  paidAmount?: number;
+  balance?: number;
+  showBalance?: boolean;
+  gstType?: 'IGST' | 'SGST_CGST';
+  sgstRate?: number;
+  cgstRate?: number;
+  igstRate?: number;
+  sgstAmount?: number;
+  cgstAmount?: number;
+  igstAmount?: number;
   notes: string;
   status: string;
   version: number;
@@ -59,6 +70,7 @@ export default function InvoiceGenerator() {
     invoiceNumber: '',
     date: new Date().toISOString().split('T')[0],
     dueDate: '',
+    hsnCode: '',
     clientName: '',
     clientEmail: '',
     clientAddress: '',
@@ -68,6 +80,16 @@ export default function InvoiceGenerator() {
     taxRate: 18,
     taxAmount: 0,
     total: 0,
+    paidAmount: 0,
+    balance: 0,
+    showBalance: false,
+    gstType: 'IGST',
+    igstRate: 18,
+    sgstRate: 9,
+    cgstRate: 9,
+    igstAmount: 0,
+    sgstAmount: 0,
+    cgstAmount: 0,
     notes: '',
     status: 'draft',
     version: 1,
@@ -246,13 +268,25 @@ export default function InvoiceGenerator() {
         client_name: invoiceData.clientName,
         client_email: invoiceData.clientEmail || null,
         client_address: invoiceData.clientAddress || null,
+        client_phone: invoiceData.clientPhone || null,
         invoice_date: invoiceData.date,
         due_date: invoiceData.dueDate,
+        hsn_code: invoiceData.hsnCode || null,
         items: invoiceData.items,
         subtotal: invoiceData.subtotal,
         tax_rate: invoiceData.taxRate,
         tax_amount: invoiceData.taxAmount,
         total: invoiceData.total,
+        paid_amount: invoiceData.paidAmount || null,
+        balance: invoiceData.balance || null,
+        show_balance: invoiceData.showBalance || false,
+        gst_type: invoiceData.gstType || 'IGST',
+        sgst_rate: invoiceData.sgstRate || null,
+        cgst_rate: invoiceData.cgstRate || null,
+        igst_rate: invoiceData.igstRate || null,
+        sgst_amount: invoiceData.sgstAmount || null,
+        cgst_amount: invoiceData.cgstAmount || null,
+        igst_amount: invoiceData.igstAmount || null,
         notes: invoiceData.notes || null,
         status: invoiceData.status || 'draft',
         version: invoiceData.version || 1,
@@ -312,6 +346,7 @@ export default function InvoiceGenerator() {
       invoiceNumber: originalInvoice.invoice_number || originalInvoice.invoiceNumber,
       date: originalInvoice.invoice_date || originalInvoice.date,
       dueDate: originalInvoice.due_date || originalInvoice.dueDate,
+      hsnCode: originalInvoice.hsn_code || originalInvoice.hsnCode || '',
       clientName: originalInvoice.client_name || originalInvoice.clientName,
       clientEmail: originalInvoice.client_email || originalInvoice.clientEmail || '',
       clientAddress: originalInvoice.client_address || originalInvoice.clientAddress || '',
@@ -321,6 +356,16 @@ export default function InvoiceGenerator() {
       taxRate: Number(originalInvoice.tax_rate || originalInvoice.taxRate) || 18,
       taxAmount: Number(originalInvoice.tax_amount || originalInvoice.taxAmount) || 0,
       total: Number(originalInvoice.total) || 0,
+      paidAmount: Number(originalInvoice.paid_amount || originalInvoice.paidAmount) || 0,
+      balance: Number(originalInvoice.balance) || 0,
+      showBalance: originalInvoice.show_balance || originalInvoice.showBalance || false,
+      gstType: originalInvoice.gst_type || originalInvoice.gstType || 'IGST',
+      sgstRate: Number(originalInvoice.sgst_rate || originalInvoice.sgstRate) || 9,
+      cgstRate: Number(originalInvoice.cgst_rate || originalInvoice.cgstRate) || 9,
+      igstRate: Number(originalInvoice.igst_rate || originalInvoice.igstRate) || 18,
+      sgstAmount: Number(originalInvoice.sgst_amount || originalInvoice.sgstAmount) || 0,
+      cgstAmount: Number(originalInvoice.cgst_amount || originalInvoice.cgstAmount) || 0,
+      igstAmount: Number(originalInvoice.igst_amount || originalInvoice.igstAmount) || 0,
       notes: originalInvoice.notes || '',
       status: originalInvoice.status || 'draft',
       version: (originalInvoice.version || 1) + 1,
@@ -406,14 +451,33 @@ export default function InvoiceGenerator() {
   const calculateTotals = () => {
     setInvoice(prev => {
       const subtotal = prev.items.reduce((sum, item) => sum + item.amount, 0);
-      const taxAmount = (subtotal * prev.taxRate) / 100;
+      
+      let taxAmount = 0;
+      let sgstAmount = 0;
+      let cgstAmount = 0;
+      let igstAmount = 0;
+      
+      if (prev.gstType === 'IGST') {
+        igstAmount = (subtotal * (prev.igstRate || 0)) / 100;
+        taxAmount = igstAmount;
+      } else {
+        sgstAmount = (subtotal * (prev.sgstRate || 0)) / 100;
+        cgstAmount = (subtotal * (prev.cgstRate || 0)) / 100;
+        taxAmount = sgstAmount + cgstAmount;
+      }
+      
       const total = subtotal + taxAmount;
+      const balance = prev.showBalance ? total - (prev.paidAmount || 0) : 0;
       
       return {
         ...prev,
         subtotal,
         taxAmount,
-        total
+        sgstAmount,
+        cgstAmount,
+        igstAmount,
+        total,
+        balance
       };
     });
   };
@@ -704,6 +768,9 @@ export default function InvoiceGenerator() {
         subtotal: 0,
         taxAmount: 0,
         total: 0,
+        paidAmount: 0,
+        balance: 0,
+        showBalance: false,
         notes: '',
         status: 'draft',
         version: 1
@@ -719,6 +786,7 @@ export default function InvoiceGenerator() {
       invoiceNumber: savedInvoice.invoice_number || savedInvoice.invoiceNumber,
       date: savedInvoice.invoice_date || savedInvoice.date,
       dueDate: savedInvoice.due_date || savedInvoice.dueDate,
+      hsnCode: savedInvoice.hsn_code || savedInvoice.hsnCode || '',
       clientName: savedInvoice.client_name || savedInvoice.clientName,
       clientEmail: savedInvoice.client_email || savedInvoice.clientEmail || '',
       clientAddress: savedInvoice.client_address || savedInvoice.clientAddress || '',
@@ -728,6 +796,16 @@ export default function InvoiceGenerator() {
       taxRate: Number(savedInvoice.tax_rate || savedInvoice.taxRate) || 18,
       taxAmount: Number(savedInvoice.tax_amount || savedInvoice.taxAmount) || 0,
       total: Number(savedInvoice.total) || 0,
+      paidAmount: Number(savedInvoice.paid_amount || savedInvoice.paidAmount) || 0,
+      balance: Number(savedInvoice.balance) || 0,
+      showBalance: savedInvoice.show_balance || savedInvoice.showBalance || false,
+      gstType: savedInvoice.gst_type || savedInvoice.gstType || 'IGST',
+      sgstRate: Number(savedInvoice.sgst_rate || savedInvoice.sgstRate) || 9,
+      cgstRate: Number(savedInvoice.cgst_rate || savedInvoice.cgstRate) || 9,
+      igstRate: Number(savedInvoice.igst_rate || savedInvoice.igstRate) || 18,
+      sgstAmount: Number(savedInvoice.sgst_amount || savedInvoice.sgstAmount) || 0,
+      cgstAmount: Number(savedInvoice.cgst_amount || savedInvoice.cgstAmount) || 0,
+      igstAmount: Number(savedInvoice.igst_amount || savedInvoice.igstAmount) || 0,
       notes: savedInvoice.notes || '',
       status: savedInvoice.status || 'draft',
       version: savedInvoice.version || 1,
@@ -900,6 +978,9 @@ export default function InvoiceGenerator() {
       subtotal: 0,
       taxAmount: 0,
       total: 0,
+      paidAmount: 0,
+      balance: 0,
+      showBalance: false,
       notes: '',
       status: 'draft',
       version: 1
@@ -1092,6 +1173,16 @@ export default function InvoiceGenerator() {
                     type="date"
                     value={invoice.date}
                     onChange={(e) => setInvoice(prev => ({ ...prev, date: e.target.value }))}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">HSN Code</label>
+                  <input
+                    type="text"
+                    value={invoice.hsnCode || ''}
+                    onChange={(e) => setInvoice(prev => ({ ...prev, hsnCode: e.target.value }))}
+                    placeholder="Enter HSN Code (e.g., 998314)"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -1307,29 +1398,162 @@ export default function InvoiceGenerator() {
                   <span className="font-medium">₹{invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
                 
-                <div className="flex justify-between items-center">
-                  <span>Tax Rate (GST) (%):</span>
-                  <input
-                    type="number"
-                    value={invoice.taxRate}
-                    onChange={(e) => updateTaxRate(parseFloat(e.target.value) || 0)}
-                    className="w-20 px-2 py-1 border rounded text-center"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                  />
+                {/* GST Type Selection */}
+                <div className="border-t pt-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">GST Type:</label>
+                  <div className="flex gap-4 mb-3">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="gstType"
+                        value="IGST"
+                        checked={invoice.gstType === 'IGST'}
+                        onChange={(e) => setInvoice(prev => ({ ...prev, gstType: e.target.value as 'IGST' | 'SGST_CGST' }))}
+                        className="mr-2"
+                      />
+                      IGST (Inter-state)
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="gstType"
+                        value="SGST_CGST"
+                        checked={invoice.gstType === 'SGST_CGST'}
+                        onChange={(e) => setInvoice(prev => ({ ...prev, gstType: e.target.value as 'IGST' | 'SGST_CGST' }))}
+                        className="mr-2"
+                      />
+                      SGST + CGST (Intra-state)
+                    </label>
+                  </div>
                 </div>
                 
-                <div className="flex justify-between">
-                  <span>Tax Amount:</span>
-                  <span className="font-medium">₹{invoice.taxAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                </div>
+                {/* GST Rate Selection */}
+                {invoice.gstType === 'IGST' ? (
+                  <div className="flex justify-between items-center">
+                    <span>IGST Rate (%):</span>
+                    <select
+                      value={invoice.igstRate || 18}
+                      onChange={(e) => {
+                        const rate = parseFloat(e.target.value);
+                        setInvoice(prev => ({ ...prev, igstRate: rate, taxRate: rate }));
+                        setTimeout(calculateTotals, 0);
+                      }}
+                      className="w-20 px-2 py-1 border rounded text-center"
+                    >
+                      <option value={0}>0%</option>
+                      <option value={5}>5%</option>
+                      <option value={12}>12%</option>
+                      <option value={18}>18%</option>
+                      <option value={28}>28%</option>
+                    </select>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span>SGST Rate (%):</span>
+                      <select
+                        value={invoice.sgstRate || 9}
+                        onChange={(e) => {
+                          const rate = parseFloat(e.target.value);
+                          setInvoice(prev => ({ 
+                            ...prev, 
+                            sgstRate: rate, 
+                            cgstRate: rate,
+                            taxRate: rate * 2 
+                          }));
+                          setTimeout(calculateTotals, 0);
+                        }}
+                        className="w-20 px-2 py-1 border rounded text-center"
+                      >
+                        <option value={0}>0%</option>
+                        <option value={2.5}>2.5%</option>
+                        <option value={6}>6%</option>
+                        <option value={9}>9%</option>
+                        <option value={14}>14%</option>
+                      </select>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>CGST Rate (%):</span>
+                      <span className="font-medium">{invoice.cgstRate || 9}%</span>
+                    </div>
+                  </>
+                )}
+                
+                {/* Tax Amount Display */}
+                {invoice.gstType === 'IGST' ? (
+                  <div className="flex justify-between">
+                    <span>IGST Amount:</span>
+                    <span className="font-medium">₹{(invoice.igstAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-between">
+                      <span>SGST Amount:</span>
+                      <span className="font-medium">₹{(invoice.sgstAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>CGST Amount:</span>
+                      <span className="font-medium">₹{(invoice.cgstAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                  </>
+                )}
                 
                 <div className="border-t pt-3">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total:</span>
                     <span>₹{invoice.total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                   </div>
+                </div>
+                
+                {/* Balance Section */}
+                <div className="border-t pt-3">
+                  <div className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      id="showBalance"
+                      checked={invoice.showBalance || false}
+                      onChange={(e) => {
+                        setInvoice(prev => ({
+                          ...prev,
+                          showBalance: e.target.checked,
+                          paidAmount: e.target.checked ? (prev.paidAmount || 0) : 0,
+                          balance: e.target.checked ? (prev.total - (prev.paidAmount || 0)) : 0
+                        }));
+                      }}
+                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="showBalance" className="text-sm font-medium text-gray-700">
+                      Show Balance
+                    </label>
+                  </div>
+                  
+                  {invoice.showBalance && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span>Paid Amount:</span>
+                        <input
+                          type="number"
+                          value={invoice.paidAmount || 0}
+                          onChange={(e) => {
+                            const paidAmount = parseFloat(e.target.value) || 0;
+                            setInvoice(prev => ({
+                              ...prev,
+                              paidAmount,
+                              balance: prev.total - paidAmount
+                            }));
+                          }}
+                          className="w-32 px-2 py-1 border rounded text-right"
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div className="flex justify-between text-lg font-bold text-red-600">
+                        <span>Balance:</span>
+                        <span>₹{(invoice.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1455,6 +1679,9 @@ export default function InvoiceGenerator() {
                     : invoice.invoiceType || 'INVOICE'}
                 </h2>
                 <p className="text-gray-600">{invoice.invoiceNumber}</p>
+                {invoice.hsnCode && (
+                  <p className="text-sm text-gray-600">HSN Code: {invoice.hsnCode}</p>
+                )}
                 <p className="text-sm text-gray-500">Reg No: UDYAM-TN-03-0306653</p>
                 {invoice.version > 1 && (
                   <p className="text-sm text-blue-600">Version {invoice.version}</p>
@@ -1581,16 +1808,45 @@ export default function InvoiceGenerator() {
                     <span>Subtotal:</span>
                     <span className="font-medium">₹{invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                   </div>
-                  <div className="flex justify-between py-2">
-                    <span>Tax ({invoice.taxRate}%):</span>
-                    <span className="font-medium">₹{invoice.taxAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  </div>
+                  
+                  {/* GST Breakdown */}
+                  {invoice.gstType === 'IGST' ? (
+                    <div className="flex justify-between py-2">
+                      <span>IGST ({invoice.igstRate}%):</span>
+                      <span className="font-medium">₹{(invoice.igstAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex justify-between py-2">
+                        <span>SGST ({invoice.sgstRate}%):</span>
+                        <span className="font-medium">₹{(invoice.sgstAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                      <div className="flex justify-between py-2">
+                        <span>CGST ({invoice.cgstRate}%):</span>
+                        <span className="font-medium">₹{(invoice.cgstAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    </>
+                  )}
                   <div className="border-t-2 border-gray-300 pt-2">
                     <div className="flex justify-between py-2 text-xl font-bold">
                       <span>Total:</span>
                       <span className="text-blue-600">₹{invoice.total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                     </div>
                   </div>
+                  {invoice.showBalance && (
+                    <>
+                      <div className="flex justify-between py-2">
+                        <span>Paid Amount:</span>
+                        <span className="font-medium">₹{(invoice.paidAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                      <div className="border-t border-gray-300 pt-2">
+                        <div className="flex justify-between py-2 text-xl font-bold text-red-600">
+                          <span>Balance:</span>
+                          <span>₹{(invoice.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
