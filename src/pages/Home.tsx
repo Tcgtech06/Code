@@ -193,6 +193,16 @@ const Home: React.FC = () => {
       rating: 5,
       author: "PUGAZH OVERSEAS",
       website: "https://pugazhoverseas.in"
+    },
+    {
+      id: 8,
+      name: "KNITINFO",
+      logo: "/Images/knitinfo.png",
+      originalLogo: "/Images/knitinfo.png",
+      review: "TCG TECH technical Team is very Good with full of Young Blood's and Their Deddication is Huge , They Build me an Hybrid Web App that is Awesome",
+      rating: 5,
+      author: "MD, KNITINFO",
+      website: "https://knitinfo.in"
     }
   ];
 

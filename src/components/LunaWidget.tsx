@@ -420,9 +420,21 @@ function LunaWidget() {
         user_profile: userProfile
       });
 
+      // Clean response by removing <think> tags and their content
+      let cleanedResponse = response.data.response;
+      
+      // Remove <think>...</think> blocks (including multiline)
+      cleanedResponse = cleanedResponse.replace(/<think>[\s\S]*?<\/think>/gi, '');
+      
+      // Remove any remaining opening or closing think tags
+      cleanedResponse = cleanedResponse.replace(/<\/?think>/gi, '');
+      
+      // Trim any extra whitespace
+      cleanedResponse = cleanedResponse.trim();
+
       const assistantMessage: Message = {
         role: 'assistant',
-        content: response.data.response
+        content: cleanedResponse
       };
 
       setMessages([...updatedMessages, assistantMessage]);
@@ -453,11 +465,11 @@ function LunaWidget() {
       
       console.log('Final lead data before sending:', currentLeadData);
       
-      // Update conversation history
+      // Update conversation history with cleaned response
       setConversationHistory([
         ...conversationHistory,
         { role: 'user', content: inputMessage },
-        { role: 'assistant', content: response.data.response }
+        { role: 'assistant', content: cleanedResponse }
       ]);
 
       // Check if we should send lead (after a short delay to let Luna's thank you message show)
