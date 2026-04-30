@@ -183,6 +183,16 @@ const Home: React.FC = () => {
       rating: 5,
       author: "Founder,TREK INDIA",
       website: "https://trekindia.co"
+    },
+    {
+      id: 7,
+      name: "PUGAZH OVERSEAS",
+      logo: "/Images/pugazh.png",
+      originalLogo: "/Images/pugazh.png",
+      review: "We are satisfied with the TCG team's Work they have Delivered Our Requirements and Fullfilled it",
+      rating: 5,
+      author: "PUGAZH OVERSEAS",
+      website: "https://pugazhoverseas.in"
     }
   ];
 
