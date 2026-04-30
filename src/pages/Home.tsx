@@ -186,16 +186,6 @@ const Home: React.FC = () => {
     },
     {
       id: 7,
-      name: "PUGAZH OVERSEAS",
-      logo: "/Images/pugazh.png",
-      originalLogo: "/Images/pugazh.png",
-      review: "We are satisfied with the TCG team's Work they have Delivered Our Requirements and Fullfilled it",
-      rating: 5,
-      author: "PUGAZH OVERSEAS",
-      website: "https://pugazhoverseas.in"
-    },
-    {
-      id: 8,
       name: "KNITINFO",
       logo: "/Images/knitinfo.png",
       originalLogo: "/Images/knitinfo.png",
@@ -203,6 +193,16 @@ const Home: React.FC = () => {
       rating: 5,
       author: "MD, KNITINFO",
       website: "https://knitinfo.in"
+    },
+    {
+      id: 8,
+      name: "PUGAZH OVERSEAS",
+      logo: "/Images/pugazh.png",
+      originalLogo: "/Images/pugazh.png",
+      review: "We are satisfied with the TCG team's Work they have Delivered Our Requirements and Fullfilled it",
+      rating: 5,
+      author: "PUGAZH OVERSEAS",
+      website: "https://pugazhoverseas.in"
     }
   ];
 
