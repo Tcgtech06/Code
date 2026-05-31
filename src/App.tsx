@@ -21,13 +21,14 @@ import ECommerce from './pages/services/ECommerce';
 import SystemSoftware from './pages/services/SystemSoftware';
 import SEODigitalMarketing from './pages/services/SEODigitalMarketing';
 import AIChatbotDevelopment from './pages/services/AIChatbotDevelopment';
+import Portfolio from './pages/Portfolio';
 
 function AppContent() {
   const { showSeason, seasonType } = useSnowEffect();
   const location = useLocation();
   
-  // Hide Luna chatbot on admin panel
-  const showLuna = !location.pathname.startsWith('/admin');
+  // Hide Luna chatbot on admin panel and portfolio page
+  const showLuna = !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/portfolio');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,6 +53,7 @@ function AppContent() {
           <Route path="/services/system-software" element={<SystemSoftware />} />
           <Route path="/services/seo-digital-marketing" element={<SEODigitalMarketing />} />
           <Route path="/services/ai-chatbot-development" element={<AIChatbotDevelopment />} />
+          <Route path="/portfolio" element={<Portfolio />} />
         </Routes>
       </main>
       <Footer />
