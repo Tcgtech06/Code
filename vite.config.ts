@@ -7,4 +7,13 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  build: {
+    chunkSizeWarningLimit: 5000,
+    rolldownOptions: {
+      onwarn(warning, warn) {
+        if (warning.code === 'EVAL') return;
+        warn(warning);
+      }
+    }
+  }
 });
