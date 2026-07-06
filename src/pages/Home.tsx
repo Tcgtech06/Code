@@ -678,7 +678,7 @@ const Home: React.FC = () => {
               {/* Express.js */}
               <div className="tech-icon group flex flex-col items-center">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-gray-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg" alt="Express.js" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300 filter invert" />
+                  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/express/express-original.svg" alt="Express.js" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300 filter brightness-0 invert" />
                 </div>
                 <span className="text-white mt-3 text-sm font-medium">Express.js</span>
               </div>
