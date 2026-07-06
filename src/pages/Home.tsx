@@ -613,15 +613,15 @@ const Home: React.FC = () => {
             </p>
           </div>
 
-          {/* Languages */}
+          {/* Languages & Runtime */}
           <div className="tech-category mb-16" style={{animationDelay: '0.1s'}}>
             <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-400">
-              Languages
+              Languages & Runtime
             </h3>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-6 md:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 md:gap-8">
               {/* HTML */}
               <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-blue-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-orange-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
                   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML5" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
                 </div>
                 <span className="text-white mt-3 text-sm font-medium">HTML5</span>
@@ -641,6 +641,14 @@ const Home: React.FC = () => {
                   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
                 </div>
                 <span className="text-white mt-3 text-sm font-medium">JavaScript</span>
+              </div>
+              
+              {/* Node.js */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-green-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Node.js</span>
               </div>
               
               {/* PHP */}
@@ -665,6 +673,14 @@ const Home: React.FC = () => {
                   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg" alt="Golang" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
                 </div>
                 <span className="text-white mt-3 text-sm font-medium">Golang</span>
+              </div>
+              
+              {/* Express.js */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-gray-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg" alt="Express.js" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300 filter invert" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Express.js</span>
               </div>
             </div>
           </div>
@@ -731,10 +747,14 @@ const Home: React.FC = () => {
                 <span className="text-white mt-3 text-sm font-medium">Supabase</span>
               </div>
               
-              {/* NeonDB - Using PostgreSQL icon */}
+              {/* NeonDB */}
               <div className="tech-icon group flex flex-col items-center">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-cyan-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt="NeonDB" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                  <svg className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#00E5FF"/>
+                    <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z" fill="#00E5FF" opacity="0.7"/>
+                    <path d="M2 12L12 17L22 12V7L12 12L2 7V12Z" fill="#00E5FF" opacity="0.85"/>
+                  </svg>
                 </div>
                 <span className="text-white mt-3 text-sm font-medium">NeonDB</span>
               </div>
@@ -787,11 +807,12 @@ const Home: React.FC = () => {
                 <span className="text-white mt-3 text-sm font-medium">AWS</span>
               </div>
               
-              {/* Hostinger - Using generic hosting icon */}
+              {/* Hostinger */}
               <div className="tech-icon group flex flex-col items-center">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-purple-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <svg className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="white">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                  <svg className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 20C55.8172 20 20 55.8172 20 100C20 144.183 55.8172 180 100 180C144.183 180 180 144.183 180 100C180 55.8172 144.183 20 100 20Z" fill="#673DE6"/>
+                    <path d="M140 70H60V80H90V130H70V140H130V130H110V80H140V70Z" fill="white"/>
                   </svg>
                 </div>
                 <span className="text-white mt-3 text-sm font-medium">Hostinger</span>
