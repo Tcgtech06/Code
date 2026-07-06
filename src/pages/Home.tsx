@@ -550,6 +550,262 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Our Tech Stack Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 relative overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full filter blur-3xl opacity-10 animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl opacity-10 animate-pulse" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-500 rounded-full filter blur-3xl opacity-10 animate-pulse" style={{animationDelay: '2s'}}></div>
+        </div>
+
+        <style>{`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+          }
+          
+          @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+          }
+          
+          @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-100px); }
+            to { opacity: 1; transform: translateX(0); }
+          }
+          
+          @keyframes slideInFromRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+          }
+          
+          @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+          }
+          
+          .tech-icon {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .tech-icon:hover {
+            animation: float 2s ease-in-out infinite;
+          }
+          
+          .tech-category {
+            animation: fadeInScale 0.8s ease-out forwards;
+          }
+        `}</style>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 relative inline-block">
+              <span className="relative z-10 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                OUR TECH STACK
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-20 blur-2xl"></div>
+            </h2>
+            <div className="w-32 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 mx-auto rounded-full mt-4"></div>
+            <p className="mt-6 text-lg text-gray-300 max-w-3xl mx-auto">
+              Powered by cutting-edge technologies to deliver exceptional solutions
+            </p>
+          </div>
+
+          {/* Languages */}
+          <div className="tech-category mb-16" style={{animationDelay: '0.1s'}}>
+            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-400">
+              Languages
+            </h3>
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-6 md:gap-8">
+              {/* HTML */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-blue-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML5" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">HTML5</span>
+              </div>
+              
+              {/* CSS */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-blue-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" alt="CSS3" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">CSS3</span>
+              </div>
+              
+              {/* JavaScript */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-yellow-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">JavaScript</span>
+              </div>
+              
+              {/* PHP */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-purple-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" alt="PHP" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">PHP</span>
+              </div>
+              
+              {/* Python */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-blue-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Python</span>
+              </div>
+              
+              {/* Golang */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-cyan-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg" alt="Golang" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Golang</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Frameworks */}
+          <div className="tech-category mb-16" style={{animationDelay: '0.2s'}}>
+            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-purple-400">
+              Frameworks
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
+              {/* React */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-cyan-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300 animate-spin-slow" style={{animation: 'spin 20s linear infinite'}} />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">React JS</span>
+              </div>
+              
+              {/* Next.js */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-gray-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300 filter invert" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Next JS</span>
+              </div>
+              
+              {/* Vue.js */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-green-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg" alt="Vue.js" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Vue JS</span>
+              </div>
+              
+              {/* Bootstrap */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-purple-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg" alt="Bootstrap" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Bootstrap</span>
+              </div>
+              
+              {/* Vite */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-purple-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" alt="Vite" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Vite</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Databases */}
+          <div className="tech-category mb-16" style={{animationDelay: '0.3s'}}>
+            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-pink-400">
+              Databases
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
+              {/* Supabase */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-green-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg" alt="Supabase" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Supabase</span>
+              </div>
+              
+              {/* NeonDB - Using PostgreSQL icon */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-cyan-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt="NeonDB" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">NeonDB</span>
+              </div>
+              
+              {/* DynamoDB */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-orange-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dynamodb/dynamodb-original.svg" alt="DynamoDB" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">DynamoDB</span>
+              </div>
+              
+              {/* Firebase */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-yellow-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg" alt="Firebase" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Firebase</span>
+              </div>
+              
+              {/* MongoDB */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-green-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" alt="MongoDB" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">MongoDB</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Deployment & Hosting */}
+          <div className="tech-category" style={{animationDelay: '0.4s'}}>
+            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-green-400">
+              Deployment & Hosting
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-3xl mx-auto">
+              {/* Netlify */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-teal-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/netlify/netlify-original.svg" alt="Netlify" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Netlify</span>
+              </div>
+              
+              {/* AWS */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-orange-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" alt="AWS" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300 filter brightness-0 invert" />
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">AWS</span>
+              </div>
+              
+              {/* Hostinger - Using generic hosting icon */}
+              <div className="tech-icon group flex flex-col items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-purple-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
+                  <svg className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="white">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                  </svg>
+                </div>
+                <span className="text-white mt-3 text-sm font-medium">Hostinger</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom decorative line */}
+          <div className="mt-16 flex justify-center">
+            <div className="w-64 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full"></div>
+          </div>
+        </div>
+      </section>
+
       {/* Our Clients Section */}
       <section id="our-clients" className="py-16 bg-gradient-to-b from-yellow-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
