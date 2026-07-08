@@ -577,7 +577,7 @@ const Home: React.FC = () => {
       <section className="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-gray-800 via-blue-900 to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-base md:text-xl lg:text-3xl font-bold text-center text-white mb-6">
-            OUR PRODUCTS
+            INNOVATION SUITE
           </h2>
           
           <div className="relative h-[200px] md:h-[300px] lg:h-[400px] max-w-4xl mx-auto flex items-center justify-center overflow-hidden bg-gray-900/50 rounded-2xl p-2 md:p-4 lg:p-6 shadow-2xl border border-gray-700/50">
@@ -718,7 +718,7 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-2xl md:text-5xl font-bold text-gray-900 mb-4 relative inline-block">
-              <span className="relative z-10">OUR SERVICES</span>
+              <span className="relative z-10">DIGITAL SOLUTIONS</span>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-10 blur-xl"></div>
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
@@ -762,11 +762,14 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Our Tech Stack Section */}\n      <TechStackSection />\n\n      {/* Our Clients Section */}
+      {/* Our Tech Stack Section */}
+      <TechStackSection />
+
+      {/* Our Clients Section */}
       <section id="our-clients" className="py-16 bg-gradient-to-b from-yellow-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-            OUR CLIENTS
+            TRUSTED PARTNERS
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {clientLogos.map((client) => (
