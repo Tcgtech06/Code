@@ -415,6 +415,16 @@ const Home: React.FC = () => {
       rating: 5,
       author: "PUGAZH OVERSEAS",
       website: "https://pugazhoverseas.in"
+    },
+    {
+      id: 9,
+      name: "JAIGOTEX",
+      logo: "/Images/jaigotex.png",
+      originalLogo: "/Images/jaigotex.png",
+      review: "TCG TECH team delivered a high-quality platform that perfectly aligned with our business needs. Excellent communication and dedication throughout the project.",
+      rating: 5,
+      author: "Founder, JAIGOTEX",
+      website: "https://jaigotex.com/"
     }
   ];
 
