@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   ArrowRight, 
   Globe, 
@@ -24,6 +25,207 @@ interface Client {
   author: string;
   website?: string;
 }
+
+
+const languages = [
+  { name: 'HTML5', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg' },
+  { name: 'CSS3', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg' },
+  { name: 'JavaScript', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg' },
+  { name: 'Node.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg' },
+  { name: 'PHP', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg' },
+  { name: 'Python', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+  { name: 'Golang', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg' }
+];
+
+const frameworks = [
+  { name: 'React', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg' },
+  { name: 'Next.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg' },
+  { name: 'Vue.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg' },
+  { name: 'Express.js', icon: 'https://cdn.worldvectorlogo.com/logos/express-109.svg' },
+  { name: 'Bootstrap', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg' }
+];
+
+const databases = [
+  { name: 'Supabase', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg' },
+  { name: 'MongoDB', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg' },
+  { name: 'Firebase', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg' },
+  { name: 'DynamoDB', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dynamodb/dynamodb-original.svg' },
+  { name: 'NeonDB', icon: 'https://cdn.worldvectorlogo.com/logos/neon-1.svg' }
+];
+
+const tools = [
+  { name: 'Vite', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg' },
+  { name: 'Hostinger', icon: 'https://cdn.worldvectorlogo.com/logos/hostinger.svg' },
+  { name: 'AWS', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg' },
+  { name: 'Netlify', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/netlify/netlify-original.svg' }
+];
+
+const TechStackSection = () => {
+  const [activeFrameworkIndex, setActiveFrameworkIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveFrameworkIndex((prev) => (prev + 1) % frameworks.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleDragEnd = (e, { offset }) => {
+    const swipe = offset.x;
+    if (swipe < -50) setActiveFrameworkIndex((prev) => (prev + 1) % frameworks.length);
+    else if (swipe > 50) setActiveFrameworkIndex((prev) => (prev - 1 + frameworks.length) % frameworks.length);
+  };
+
+  return (
+    <section className="py-24 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-200/50 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-pink-200/50 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
+            Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Tech Stack</span>
+          </h2>
+          <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full mb-6"></div>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            We use industry-leading tools and 2026's official standardized frameworks to deliver lightning-fast, scalable, and ultra-secure applications.
+          </p>
+        </div>
+
+        <div className="space-y-24">
+          
+          {/* Languages - Right to Left Infinite Marquee */}
+          <div>
+            <h3 className="text-2xl font-bold text-center text-gray-800 mb-8">Core Languages</h3>
+            <div className="overflow-hidden whitespace-nowrap relative flex items-center w-full bg-white/40 backdrop-blur-md py-8 rounded-3xl shadow-lg border border-white/60">
+              <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-indigo-50 to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-pink-50 to-transparent z-10 pointer-events-none"></div>
+              
+              <motion.div
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{ ease: "linear", duration: 30, repeat: Infinity }}
+                className="flex gap-12 px-6"
+              >
+                {[...languages, ...languages, ...languages].map((tech, i) => (
+                  <div key={i} className="flex flex-col items-center justify-center gap-3 min-w-[120px]">
+                    <div className="w-20 h-20 bg-white rounded-2xl shadow-md flex items-center justify-center p-4 hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                      <img src={tech.icon} alt={tech.name} className="w-full h-full object-contain" />
+                    </div>
+                    <span className="font-semibold text-gray-700">{tech.name}</span>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Frameworks - 3D Popup Carousel */}
+          <div>
+            <h3 className="text-2xl font-bold text-center text-gray-800 mb-8">Frameworks & Libraries</h3>
+            <div className="relative w-full h-[400px] flex items-center justify-center overflow-hidden bg-white/40 backdrop-blur-md rounded-3xl shadow-lg border border-white/60">
+              {frameworks.map((tech, i) => {
+                const isActive = i === activeFrameworkIndex;
+                const isPrev = i === (activeFrameworkIndex - 1 + frameworks.length) % frameworks.length;
+                const isNext = i === (activeFrameworkIndex + 1) % frameworks.length;
+                
+                let x = 0;
+                let zIndex = 10;
+                let scale = 0.6;
+                let opacity = 0;
+                let rotateY = 0;
+
+                if (isActive) {
+                  x = 0; zIndex = 30; scale = 1.2; opacity = 1; rotateY = 0;
+                } else if (isPrev) {
+                  x = -180; zIndex = 20; scale = 0.8; opacity = 0.8; rotateY = 25;
+                } else if (isNext) {
+                  x = 180; zIndex = 20; scale = 0.8; opacity = 0.8; rotateY = -25;
+                } else {
+                  x = i < activeFrameworkIndex ? -300 : 300; opacity = 0;
+                }
+
+                return (
+                  <motion.div
+                    key={tech.name}
+                    initial={false}
+                    animate={{ x, zIndex, scale, opacity, rotateY }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    drag={isActive ? "x" : false}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    onDragEnd={handleDragEnd}
+                    className="absolute bg-white rounded-3xl shadow-2xl p-6 w-48 h-48 flex flex-col items-center justify-center gap-4 cursor-grab active:cursor-grabbing"
+                    onClick={() => setActiveFrameworkIndex(i)}
+                    style={{ perspective: 1000 }}
+                  >
+                    <img src={tech.icon} alt={tech.name} className="w-24 h-24 object-contain" />
+                    <span className="font-bold text-gray-800 text-xl">{tech.name}</span>
+                  </motion.div>
+                );
+              })}
+              <div className="absolute bottom-6 flex gap-3">
+                {frameworks.map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`w-3 h-3 rounded-full transition-colors duration-300 ${i === activeFrameworkIndex ? 'bg-blue-600' : 'bg-gray-400'}`}
+                  />
+                ))}
+              </div>
+              <p className="absolute bottom-12 text-center text-sm text-gray-500 w-full pointer-events-none">Swipe or click to navigate</p>
+            </div>
+          </div>
+
+          {/* Databases & Tools - Alternating Vertical Marquees */}
+          <div>
+            <h3 className="text-2xl font-bold text-center text-gray-800 mb-8">Databases & Deployment</h3>
+            <div className="h-[500px] overflow-hidden flex justify-center gap-8 md:gap-24 px-4 bg-white/40 backdrop-blur-md rounded-3xl shadow-lg border border-white/60 py-4 relative">
+              <div className="absolute left-0 right-0 top-0 h-32 bg-gradient-to-b from-indigo-50 to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute left-0 right-0 bottom-0 h-32 bg-gradient-to-t from-pink-50 to-transparent z-10 pointer-events-none"></div>
+
+              {/* Column 1: Databases - Down to Top */}
+              <div className="flex-1 max-w-[280px] relative">
+                <motion.div
+                  animate={{ y: ["0%", "-50%"] }}
+                  transition={{ ease: "linear", duration: 15, repeat: Infinity }}
+                  className="flex flex-col gap-6"
+                >
+                  {[...databases, ...databases, ...databases].map((tech, i) => (
+                    <div key={`db-${i}`} className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-6 hover:scale-105 transition-transform duration-300 cursor-pointer">
+                      <div className="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center p-3 shrink-0">
+                        <img src={tech.icon} alt={tech.name} className="w-full h-full object-contain" />
+                      </div>
+                      <span className="font-bold text-gray-700 text-lg">{tech.name}</span>
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+
+              {/* Column 2: Tools - Top to Down */}
+              <div className="flex-1 max-w-[280px] relative">
+                <motion.div
+                  animate={{ y: ["-50%", "0%"] }}
+                  transition={{ ease: "linear", duration: 15, repeat: Infinity }}
+                  className="flex flex-col gap-6"
+                >
+                  {[...tools, ...tools, ...tools].map((tech, i) => (
+                    <div key={`tool-${i}`} className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-6 hover:scale-105 transition-transform duration-300 cursor-pointer">
+                      <div className="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center p-3 shrink-0">
+                        <img src={tech.icon} alt={tech.name} className="w-full h-full object-contain" />
+                      </div>
+                      <span className="font-bold text-gray-700 text-lg">{tech.name}</span>
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const Home: React.FC = () => {
 
@@ -550,284 +752,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Our Tech Stack Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full filter blur-3xl opacity-10 animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl opacity-10 animate-pulse" style={{animationDelay: '1s'}}></div>
-          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-500 rounded-full filter blur-3xl opacity-10 animate-pulse" style={{animationDelay: '2s'}}></div>
-        </div>
-
-        <style>{`
-          @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-          }
-          
-          @keyframes glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
-          }
-          
-          @keyframes slideInFromLeft {
-            from { opacity: 0; transform: translateX(-100px); }
-            to { opacity: 1; transform: translateX(0); }
-          }
-          
-          @keyframes slideInFromRight {
-            from { opacity: 0; transform: translateX(100px); }
-            to { opacity: 1; transform: translateX(0); }
-          }
-          
-          @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-          }
-          
-          .tech-icon {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          }
-          
-          .tech-icon:hover {
-            animation: float 2s ease-in-out infinite;
-          }
-          
-          .tech-category {
-            animation: fadeInScale 0.8s ease-out forwards;
-          }
-        `}</style>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 relative inline-block">
-              <span className="relative z-10 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                OUR TECH STACK
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-20 blur-2xl"></div>
-            </h2>
-            <div className="w-32 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 mx-auto rounded-full mt-4"></div>
-            <p className="mt-6 text-lg text-gray-300 max-w-3xl mx-auto">
-              Powered by cutting-edge technologies to deliver exceptional solutions
-            </p>
-          </div>
-
-          {/* Languages & Runtime */}
-          <div className="tech-category mb-16" style={{animationDelay: '0.1s'}}>
-            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-400">
-              Languages & Runtime
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 md:gap-8">
-              {/* HTML */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-orange-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML5" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">HTML5</span>
-              </div>
-              
-              {/* CSS */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-blue-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" alt="CSS3" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">CSS3</span>
-              </div>
-              
-              {/* JavaScript */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-yellow-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">JavaScript</span>
-              </div>
-              
-              {/* Node.js */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-green-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Node.js</span>
-              </div>
-              
-              {/* PHP */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-purple-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" alt="PHP" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">PHP</span>
-              </div>
-              
-              {/* Python */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-blue-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Python</span>
-              </div>
-              
-              {/* Golang */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-cyan-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg" alt="Golang" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Golang</span>
-              </div>
-              
-              {/* Express.js */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-gray-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/express/express-original.svg" alt="Express.js" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300 filter brightness-0 invert" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Express.js</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Frameworks */}
-          <div className="tech-category mb-16" style={{animationDelay: '0.2s'}}>
-            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-purple-400">
-              Frameworks
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
-              {/* React */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-cyan-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300 animate-spin-slow" style={{animation: 'spin 20s linear infinite'}} />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">React JS</span>
-              </div>
-              
-              {/* Next.js */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-gray-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300 filter invert" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Next JS</span>
-              </div>
-              
-              {/* Vue.js */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-green-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg" alt="Vue.js" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Vue JS</span>
-              </div>
-              
-              {/* Bootstrap */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-purple-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg" alt="Bootstrap" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Bootstrap</span>
-              </div>
-              
-              {/* Vite */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-purple-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" alt="Vite" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Vite</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Databases */}
-          <div className="tech-category mb-16" style={{animationDelay: '0.3s'}}>
-            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-pink-400">
-              Databases
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
-              {/* Supabase */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-green-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg" alt="Supabase" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Supabase</span>
-              </div>
-              
-              {/* NeonDB */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-cyan-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <svg className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#00E5FF"/>
-                    <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z" fill="#00E5FF" opacity="0.7"/>
-                    <path d="M2 12L12 17L22 12V7L12 12L2 7V12Z" fill="#00E5FF" opacity="0.85"/>
-                  </svg>
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">NeonDB</span>
-              </div>
-              
-              {/* DynamoDB */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-orange-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dynamodb/dynamodb-original.svg" alt="DynamoDB" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">DynamoDB</span>
-              </div>
-              
-              {/* Firebase */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-yellow-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg" alt="Firebase" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Firebase</span>
-              </div>
-              
-              {/* MongoDB */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-green-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" alt="MongoDB" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">MongoDB</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Deployment & Hosting */}
-          <div className="tech-category" style={{animationDelay: '0.4s'}}>
-            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-green-400">
-              Deployment & Hosting
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-3xl mx-auto">
-              {/* Netlify */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-teal-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/netlify/netlify-original.svg" alt="Netlify" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Netlify</span>
-              </div>
-              
-              {/* AWS */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-orange-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" alt="AWS" className="w-16 h-16 group-hover:scale-110 transition-transform duration-300 filter brightness-0 invert" />
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">AWS</span>
-              </div>
-              
-              {/* Hostinger */}
-              <div className="tech-icon group flex flex-col items-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl hover:bg-white/20 hover:shadow-purple-500/50 transition-all duration-300 w-full aspect-square flex items-center justify-center">
-                  <svg className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M100 20C55.8172 20 20 55.8172 20 100C20 144.183 55.8172 180 100 180C144.183 180 180 144.183 180 100C180 55.8172 144.183 20 100 20Z" fill="#673DE6"/>
-                    <path d="M140 70H60V80H90V130H70V140H130V130H110V80H140V70Z" fill="white"/>
-                  </svg>
-                </div>
-                <span className="text-white mt-3 text-sm font-medium">Hostinger</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom decorative line */}
-          <div className="mt-16 flex justify-center">
-            <div className="w-64 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full"></div>
-          </div>
-        </div>
-      </section>
-
-      {/* Our Clients Section */}
+      {/* Our Tech Stack Section */}\n      <TechStackSection />\n\n      {/* Our Clients Section */}
       <section id="our-clients" className="py-16 bg-gradient-to-b from-yellow-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl md:text-4xl font-bold text-center text-gray-900 mb-12">
