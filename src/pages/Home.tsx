@@ -60,6 +60,7 @@ const tools = [
   { name: 'Netlify', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/netlify/netlify-original.svg' }
 ];
 
+
 const TechStackSection = () => {
   const [activeFrameworkIndex, setActiveFrameworkIndex] = useState(0);
 
@@ -77,7 +78,7 @@ const TechStackSection = () => {
   };
 
   return (
-    <section className="py-24 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-200/50 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
@@ -85,36 +86,36 @@ const TechStackSection = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-            Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Tech Stack</span>
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4">
+            Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Tech Arsenal</span>
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <div className="w-16 md:w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full mb-6"></div>
+          <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-2">
             We use industry-leading tools and 2026's official standardized frameworks to deliver lightning-fast, scalable, and ultra-secure applications.
           </p>
         </div>
 
-        <div className="space-y-24">
+        <div className="space-y-16 md:space-y-24">
           
           {/* Languages - Right to Left Infinite Marquee */}
           <div>
-            <h3 className="text-2xl font-bold text-center text-gray-800 mb-8">Core Languages</h3>
-            <div className="overflow-hidden whitespace-nowrap relative flex items-center w-full bg-white/40 backdrop-blur-md py-8 rounded-3xl shadow-lg border border-white/60">
-              <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-indigo-50 to-transparent z-10 pointer-events-none"></div>
-              <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-pink-50 to-transparent z-10 pointer-events-none"></div>
+            <h3 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-6 md:mb-8">Core Languages</h3>
+            <div className="overflow-hidden whitespace-nowrap relative flex items-center w-full bg-white/40 backdrop-blur-md py-6 md:py-8 rounded-2xl md:rounded-3xl shadow-lg border border-white/60">
+              <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-indigo-50 to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-pink-50 to-transparent z-10 pointer-events-none"></div>
               
               <motion.div
                 animate={{ x: ["0%", "-50%"] }}
                 transition={{ ease: "linear", duration: 30, repeat: Infinity }}
-                className="flex gap-12 px-6"
+                className="flex gap-6 md:gap-12 px-4 md:px-6"
               >
                 {[...languages, ...languages, ...languages].map((tech, i) => (
-                  <div key={i} className="flex flex-col items-center justify-center gap-3 min-w-[120px]">
-                    <div className="w-20 h-20 bg-white rounded-2xl shadow-md flex items-center justify-center p-4 hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                  <div key={i} className="flex flex-col items-center justify-center gap-2 md:gap-3 min-w-[90px] md:min-w-[120px]">
+                    <div className="w-14 h-14 md:w-20 md:h-20 bg-white rounded-xl md:rounded-2xl shadow-md flex items-center justify-center p-3 md:p-4 hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
                       <img src={tech.icon} alt={tech.name} className="w-full h-full object-contain" />
                     </div>
-                    <span className="font-semibold text-gray-700">{tech.name}</span>
+                    <span className="font-semibold text-gray-700 text-xs md:text-base">{tech.name}</span>
                   </div>
                 ))}
               </motion.div>
@@ -123,8 +124,8 @@ const TechStackSection = () => {
 
           {/* Frameworks - 3D Popup Carousel */}
           <div>
-            <h3 className="text-2xl font-bold text-center text-gray-800 mb-8">Frameworks & Libraries</h3>
-            <div className="relative w-full h-[400px] flex items-center justify-center overflow-hidden bg-white/40 backdrop-blur-md rounded-3xl shadow-lg border border-white/60">
+            <h3 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-6 md:mb-8">Frameworks & Libraries</h3>
+            <div className="relative w-full h-[300px] md:h-[400px] flex items-center justify-center overflow-hidden bg-white/40 backdrop-blur-md rounded-2xl md:rounded-3xl shadow-lg border border-white/60">
               {frameworks.map((tech, i) => {
                 const isActive = i === activeFrameworkIndex;
                 const isPrev = i === (activeFrameworkIndex - 1 + frameworks.length) % frameworks.length;
@@ -136,14 +137,23 @@ const TechStackSection = () => {
                 let opacity = 0;
                 let rotateY = 0;
 
+                // Adjust horizontal offset based on screen size (roughly)
+                // Use a smaller offset for mobile screens natively by just making the container overflow smaller
                 if (isActive) {
                   x = 0; zIndex = 30; scale = 1.2; opacity = 1; rotateY = 0;
                 } else if (isPrev) {
-                  x = -180; zIndex = 20; scale = 0.8; opacity = 0.8; rotateY = 25;
+                  x = -120; zIndex = 20; scale = 0.8; opacity = 0.8; rotateY = 25;
                 } else if (isNext) {
-                  x = 180; zIndex = 20; scale = 0.8; opacity = 0.8; rotateY = -25;
+                  x = 120; zIndex = 20; scale = 0.8; opacity = 0.8; rotateY = -25;
                 } else {
-                  x = i < activeFrameworkIndex ? -300 : 300; opacity = 0;
+                  x = i < activeFrameworkIndex ? -200 : 200; opacity = 0;
+                }
+
+                // If on md or larger, expand the x offset
+                if (typeof window !== 'undefined' && window.innerWidth > 768) {
+                  if (isPrev) x = -180;
+                  if (isNext) x = 180;
+                  if (!isActive && !isPrev && !isNext) x = i < activeFrameworkIndex ? -300 : 300;
                 }
 
                 return (
@@ -155,47 +165,47 @@ const TechStackSection = () => {
                     drag={isActive ? "x" : false}
                     dragConstraints={{ left: 0, right: 0 }}
                     onDragEnd={handleDragEnd}
-                    className="absolute bg-white rounded-3xl shadow-2xl p-6 w-48 h-48 flex flex-col items-center justify-center gap-4 cursor-grab active:cursor-grabbing"
+                    className="absolute bg-white rounded-2xl md:rounded-3xl shadow-2xl p-4 md:p-6 w-36 h-36 md:w-48 md:h-48 flex flex-col items-center justify-center gap-2 md:gap-4 cursor-grab active:cursor-grabbing"
                     onClick={() => setActiveFrameworkIndex(i)}
                     style={{ perspective: 1000 }}
                   >
-                    <img src={tech.icon} alt={tech.name} className="w-24 h-24 object-contain" />
-                    <span className="font-bold text-gray-800 text-xl">{tech.name}</span>
+                    <img src={tech.icon} alt={tech.name} className="w-16 h-16 md:w-24 md:h-24 object-contain" />
+                    <span className="font-bold text-gray-800 text-sm md:text-xl">{tech.name}</span>
                   </motion.div>
                 );
               })}
-              <div className="absolute bottom-6 flex gap-3">
+              <div className="absolute bottom-4 md:bottom-6 flex gap-2 md:gap-3">
                 {frameworks.map((_, i) => (
                   <div 
                     key={i} 
-                    className={`w-3 h-3 rounded-full transition-colors duration-300 ${i === activeFrameworkIndex ? 'bg-blue-600' : 'bg-gray-400'}`}
+                    className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-colors duration-300 ${i === activeFrameworkIndex ? 'bg-blue-600' : 'bg-gray-400'}`}
                   />
                 ))}
               </div>
-              <p className="absolute bottom-12 text-center text-sm text-gray-500 w-full pointer-events-none">Swipe or click to navigate</p>
+              <p className="absolute bottom-8 md:bottom-12 text-center text-xs md:text-sm text-gray-500 w-full pointer-events-none">Swipe or click to navigate</p>
             </div>
           </div>
 
           {/* Databases & Tools - Alternating Vertical Marquees */}
           <div>
-            <h3 className="text-2xl font-bold text-center text-gray-800 mb-8">Databases & Deployment</h3>
-            <div className="h-[500px] overflow-hidden flex justify-center gap-8 md:gap-24 px-4 bg-white/40 backdrop-blur-md rounded-3xl shadow-lg border border-white/60 py-4 relative">
-              <div className="absolute left-0 right-0 top-0 h-32 bg-gradient-to-b from-indigo-50 to-transparent z-10 pointer-events-none"></div>
-              <div className="absolute left-0 right-0 bottom-0 h-32 bg-gradient-to-t from-pink-50 to-transparent z-10 pointer-events-none"></div>
+            <h3 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-6 md:mb-8">Databases & Deployment</h3>
+            <div className="h-[400px] md:h-[500px] overflow-hidden flex justify-center gap-3 sm:gap-6 md:gap-16 px-2 md:px-4 bg-white/40 backdrop-blur-md rounded-2xl md:rounded-3xl shadow-lg border border-white/60 py-2 md:py-4 relative">
+              <div className="absolute left-0 right-0 top-0 h-16 md:h-32 bg-gradient-to-b from-indigo-50 to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute left-0 right-0 bottom-0 h-16 md:h-32 bg-gradient-to-t from-pink-50 to-transparent z-10 pointer-events-none"></div>
 
               {/* Column 1: Databases - Down to Top */}
               <div className="flex-1 max-w-[280px] relative">
                 <motion.div
                   animate={{ y: ["0%", "-50%"] }}
                   transition={{ ease: "linear", duration: 15, repeat: Infinity }}
-                  className="flex flex-col gap-6"
+                  className="flex flex-col gap-4 md:gap-6"
                 >
                   {[...databases, ...databases, ...databases].map((tech, i) => (
-                    <div key={`db-${i}`} className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-6 hover:scale-105 transition-transform duration-300 cursor-pointer">
-                      <div className="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center p-3 shrink-0">
+                    <div key={`db-${i}`} className="bg-white rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 flex items-center gap-3 sm:gap-4 md:gap-6 hover:scale-105 transition-transform duration-300 cursor-pointer mx-1">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-gray-50 rounded-lg md:rounded-xl flex items-center justify-center p-2 md:p-3 shrink-0">
                         <img src={tech.icon} alt={tech.name} className="w-full h-full object-contain" />
                       </div>
-                      <span className="font-bold text-gray-700 text-lg">{tech.name}</span>
+                      <span className="font-bold text-gray-700 text-xs sm:text-sm md:text-lg break-words w-full">{tech.name}</span>
                     </div>
                   ))}
                 </motion.div>
@@ -206,14 +216,14 @@ const TechStackSection = () => {
                 <motion.div
                   animate={{ y: ["-50%", "0%"] }}
                   transition={{ ease: "linear", duration: 15, repeat: Infinity }}
-                  className="flex flex-col gap-6"
+                  className="flex flex-col gap-4 md:gap-6"
                 >
                   {[...tools, ...tools, ...tools].map((tech, i) => (
-                    <div key={`tool-${i}`} className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-6 hover:scale-105 transition-transform duration-300 cursor-pointer">
-                      <div className="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center p-3 shrink-0">
+                    <div key={`tool-${i}`} className="bg-white rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 flex items-center gap-3 sm:gap-4 md:gap-6 hover:scale-105 transition-transform duration-300 cursor-pointer mx-1">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-gray-50 rounded-lg md:rounded-xl flex items-center justify-center p-2 md:p-3 shrink-0">
                         <img src={tech.icon} alt={tech.name} className="w-full h-full object-contain" />
                       </div>
-                      <span className="font-bold text-gray-700 text-lg">{tech.name}</span>
+                      <span className="font-bold text-gray-700 text-xs sm:text-sm md:text-lg break-words w-full">{tech.name}</span>
                     </div>
                   ))}
                 </motion.div>
