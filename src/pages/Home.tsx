@@ -781,7 +781,7 @@ const Home: React.FC = () => {
           <h2 className="text-2xl md:text-4xl font-bold text-center text-gray-900 mb-12">
             TRUSTED PARTNERS
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {clientLogos.map((client) => (
               <div
                 key={client.id}
