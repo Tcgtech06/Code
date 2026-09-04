@@ -13,6 +13,7 @@ import Careers from './pages/Careers';
 import Contact from './pages/Contact';
 import JobApplication from './pages/JobApplication';
 import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 import Admin from './pages/Admin';
 import Landing from './pages/Landing';
 import WebDevelopment from './pages/services/WebDevelopment';
@@ -45,6 +46,8 @@ function AppContent() {
           <Route path="/careers/apply" element={<JobApplication />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/privacy-policy" element={<Privacy />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/landing" element={<Landing />} />
           <Route path="/services/web-development" element={<WebDevelopment />} />

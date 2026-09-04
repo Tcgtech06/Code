@@ -40,6 +40,8 @@ export default function Footer() {
               <li><Link to="/about" onClick={handleLinkClick} className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
               <li><Link to="/careers" onClick={handleLinkClick} className="text-gray-400 hover:text-white transition-colors">Careers</Link></li>
               <li><Link to="/contact" onClick={handleLinkClick} className="text-gray-400 hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link to="/privacy" onClick={handleLinkClick} className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" onClick={handleLinkClick} className="text-gray-400 hover:text-white transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
           <div>
@@ -69,8 +71,12 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left gap-4">
           <p className="text-gray-400">&copy; {new Date().getFullYear()}. All Rights Reserved By <span className="text-red-500">T</span><span className="text-green-500">C</span><span className="text-yellow-500">G</span> <span className="text-blue-500">TECH</span></p>
+          <div className="flex items-center space-x-6 text-sm text-gray-400">
+            <Link to="/privacy" onClick={handleLinkClick} className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms" onClick={handleLinkClick} className="hover:text-white transition-colors">Terms</Link>
+          </div>
         </div>
       </div>
     </footer>
