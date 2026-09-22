@@ -6,6 +6,7 @@ import { Plus, X, ChevronDown, ChevronUp, Download, Eye, MessageCircle, Search, 
 import InvoiceGenerator from '../components/InvoiceGenerator';
 import LetterGenerator from '../components/LetterGenerator';
 import SalarySlipGenerator from '../components/SalarySlipGenerator';
+import QuotationGenerator from '../components/QuotationGenerator';
 
 interface JobApplication {
   id: string;
@@ -469,6 +470,16 @@ Application Details:
               Applications ({applications.length})
             </button>
             <button
+              onClick={() => setActiveTab('quotations')}
+              className={`px-4 py-2 rounded-lg font-medium ${
+                activeTab === 'quotations' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              Quotation Generator
+            </button>
+            <button
               onClick={() => setActiveTab('invoices')}
               className={`px-4 py-2 rounded-lg font-medium ${
                 activeTab === 'invoices' 
@@ -502,6 +513,20 @@ Application Details:
 
           {/* Mobile Layout */}
           <div className="md:hidden">
+            {/* Mobile Quotation Generator Button */}
+            <div className="mb-4">
+              <button
+                onClick={() => setActiveTab('quotations')}
+                className={`w-full px-4 py-3 rounded-lg font-medium ${
+                  activeTab === 'quotations' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                }`}
+              >
+                Quotation Generator
+              </button>
+            </div>
+
             {/* Mobile Invoice Generator Button */}
             <div className="mb-4">
               <button
@@ -578,7 +603,9 @@ Application Details:
           </div>
         )}
 
-        {activeTab === 'invoices' ? (
+        {activeTab === 'quotations' ? (
+          <QuotationGenerator />
+        ) : activeTab === 'invoices' ? (
           <InvoiceGenerator />
         ) : activeTab === 'letters' ? (
           <LetterGenerator />
