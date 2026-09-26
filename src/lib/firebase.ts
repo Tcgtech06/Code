@@ -20,6 +20,13 @@ import {
   getDownloadURL, 
   deleteObject 
 } from 'firebase/storage';
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  User 
+} from 'firebase/auth';
 import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
@@ -36,6 +43,32 @@ const firebaseConfig = {
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+export const auth = getAuth(app);
+
+// Auth Helpers
+export async function loginAdminWithEmail(email: string, password: string):Promise<{ user: User | null; error: Error | null }> {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
+    return { user: userCredential.user, error: null };
+  } catch (error) {
+    console.error('Login error:', error);
+    return { user: null, error: error instanceof Error ? error : new Error('Invalid credentials') };
+  }
+}
+
+export async function logoutAdmin(): Promise<{ error: Error | null }> {
+  try {
+    await signOut(auth);
+    return { error: null };
+  } catch (error) {
+    console.error('Logout error:', error);
+    return { error: error instanceof Error ? error : new Error('Logout failed') };
+  }
+}
+
+export function onAuthStatusChange(callback: (user: User | null) => void) {
+  return onAuthStateChanged(auth, callback);
+}
 
 // Analytics
 export let analytics: Analytics | null = null;
@@ -299,6 +332,28 @@ export async function deleteJobApplication(id: string, resumeUrl?: string | null
 }
 
 export async function uploadResumeFile(file: File, applicationId: string): Promise<string | null> {
+  const cloudinaryCloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const cloudinaryPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'tcg_resumes';
+
+  if (cloudinaryCloudName) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', cloudinaryPreset);
+      formData.append('folder', 'tcg_resumes');
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/auto/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.secure_url) {
+        return data.secure_url;
+      }
+    } catch (cldErr) {
+      console.warn('Cloudinary upload failed, attempting Firebase Storage fallback:', cldErr);
+    }
+  }
+
   try {
     const fileExt = file.name.split('.').pop();
     const fileName = `resumes/${applicationId}_${Date.now()}.${fileExt}`;
@@ -308,7 +363,7 @@ export async function uploadResumeFile(file: File, applicationId: string): Promi
     const downloadUrl = await getDownloadURL(storageRef);
     return downloadUrl;
   } catch (error) {
-    console.error('Error uploading resume to Firebase Storage:', error);
+    console.error('Error uploading resume:', error);
     return null;
   }
 }
