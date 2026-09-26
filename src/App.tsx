@@ -5,7 +5,7 @@ import SnowEffect from './components/SnowEffect';
 import PongalAnimation from './components/PongalAnimation';
 import DiwaliAnimation from './components/DiwaliAnimation';
 import CometAnimation from './components/CometAnimation';
-import LunaWidget from './components/LunaWidget';
+// import LunaWidget from './components/LunaWidget';
 import useSnowEffect from './hooks/useSnowEffect';
 import Home from './pages/Home';
 import About from './pages/About';
@@ -28,8 +28,7 @@ function AppContent() {
   const { showSeason, seasonType } = useSnowEffect();
   const location = useLocation();
   
-  // Hide Luna chatbot on admin panel and portfolio page
-  const showLuna = !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/portfolio');
+  // const showLuna = !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/portfolio');
 
   return (
     <div className="min-h-screen flex flex-col">
