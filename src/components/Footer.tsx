@@ -56,16 +56,18 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4">Connect With Us</h4>
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com/share/18mrozizj7/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+              <a href="https://www.facebook.com/profile.php?id=61592922196871&rdid=e2zNH4vkJRwEuugq" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" title="Facebook">
                 <Facebook className="h-6 w-6" />
               </a>
-              <a href="https://x.com/tech_tcg06" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+              <a href="https://x.com/tech_tcg06" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" title="X (Twitter)">
                 <XIcon className="h-6 w-6" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              {/* LinkedIn temporarily disabled
+              <a href="#" className="text-gray-400 hover:text-white transition-colors" title="LinkedIn">
                 <Linkedin className="h-6 w-6" />
               </a>
-              <a href="https://www.instagram.com/tcgtechofficial?igsh=NnN0Z3h6aWtjMzgx" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+              */}
+              <a href="https://www.instagram.com/tcg_techofficial/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" title="Instagram">
                 <Instagram className="h-6 w-6" />
               </a>
             </div>
