@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Globe, Clock, Users } from 'lucide-react';
-import { saveEnquiry } from '../lib/supabase';
+import { saveEnquiry } from '../lib/firebase';
 
 // WhatsApp Icon Component
 const WhatsAppIcon = ({ className }: { className?: string }) => (

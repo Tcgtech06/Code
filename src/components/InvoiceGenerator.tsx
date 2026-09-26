@@ -2,7 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, Download, Search, Edit, X, Save, Eye, Copy } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { supabase } from '../lib/supabase';
+import { 
+  getNextInvoiceNumber, 
+  saveInvoiceToFirestore, 
+  fetchInvoicesFromFirestore, 
+  deleteInvoiceFromFirestore 
+} from '../lib/firebase';
 
 interface InvoiceItem {
   id: string;
@@ -129,51 +134,18 @@ export default function InvoiceGenerator() {
 
   const generateNextInvoiceNumber = async () => {
     try {
-      // Use the database function to get next invoice number atomically
-      const { data, error } = await supabase
-        .rpc('get_next_invoice_number');
-
-      if (error) throw error;
-
-      const newInvoiceNumber = data;
+      const newInvoiceNumber = await getNextInvoiceNumber();
       setInvoice(prev => ({ ...prev, invoiceNumber: newInvoiceNumber }));
     } catch (error) {
       console.error('Error generating invoice number:', error);
-      // Fallback: query the last invoice number manually
-      try {
-        const { data, error: fallbackError } = await supabase
-          .from('invoices')
-          .select('invoice_number')
-          .order('invoice_number', { ascending: false })
-          .limit(1);
-
-        if (fallbackError) throw fallbackError;
-
-        let nextNumber = 1;
-        if (data && data.length > 0) {
-          const lastInvoiceNumber = data[0].invoice_number;
-          const match = lastInvoiceNumber.match(/INV-(\d+)/);
-          if (match) {
-            nextNumber = parseInt(match[1]) + 1;
-          }
-        }
-
-        const newInvoiceNumber = `INV-${nextNumber.toString().padStart(4, '0')}`;
-        setInvoice(prev => ({ ...prev, invoiceNumber: newInvoiceNumber }));
-      } catch (fallbackError) {
-        console.error('Fallback error:', fallbackError);
-        setInvoice(prev => ({ ...prev, invoiceNumber: `INV-${Date.now()}` }));
-      }
+      const currentYear = new Date().getFullYear();
+      setInvoice(prev => ({ ...prev, invoiceNumber: `TCG-${currentYear}-${String(Date.now()).slice(-4)}` }));
     }
   };
 
   const loadSavedInvoices = async () => {
     try {
-      const { data, error } = await supabase
-        .from('invoices')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      const { data, error } = await fetchInvoicesFromFirestore();
       if (error) throw error;
       
       // Ensure all numeric properties are properly initialized
@@ -189,7 +161,7 @@ export default function InvoiceGenerator() {
         taxRate: Number(invoice.tax_rate) || 0,
         taxAmount: Number(invoice.tax_amount) || 0,
         total: Number(invoice.total) || 0
-      }));
+      })) as unknown as Invoice[];
       
       setSavedInvoices(processedInvoices);
     } catch (error) {
@@ -204,35 +176,12 @@ export default function InvoiceGenerator() {
       return;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('invoices')
-        .select('*')
-        .or(`invoice_number.ilike.%${term}%,client_name.ilike.%${term}%`)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      
-      // Ensure all numeric properties are properly initialized
-      const processedResults = (data || []).map(invoice => ({
-        ...invoice,
-        items: ((invoice.items as InvoiceItem[]) || []).map((item) => ({
-          ...item,
-          quantity: Number(item.quantity) || 0,
-          rate: Number(item.rate) || 0,
-          amount: Number(item.amount) || 0
-        })),
-        subtotal: Number(invoice.subtotal) || 0,
-        taxRate: Number(invoice.tax_rate) || 0,
-        taxAmount: Number(invoice.tax_amount) || 0,
-        total: Number(invoice.total) || 0
-      }));
-      
-      setSearchResults(processedResults);
-    } catch (error) {
-      console.error('Error searching invoices:', error);
-      setMessage({ text: 'Failed to search invoices', type: 'error' });
-    }
+    const lower = term.toLowerCase();
+    const filtered = savedInvoices.filter(invoice => 
+      (invoice.invoiceNumber && invoice.invoiceNumber.toLowerCase().includes(lower)) ||
+      (invoice.clientName && invoice.clientName.toLowerCase().includes(lower))
+    );
+    setSearchResults(filtered);
   };
 
   const saveInvoiceToDatabase = async (invoiceData: Invoice, isEdit: boolean = false) => {
@@ -291,46 +240,16 @@ export default function InvoiceGenerator() {
         original_id: invoiceData.originalId || null
       };
 
-      console.log('Attempting to save invoice:', invoiceToSave);
+      const { data, error } = await saveInvoiceToFirestore(invoiceToSave);
+      if (error) throw error;
 
-      const { data, error } = await supabase
-        .from('invoices')
-        .insert([invoiceToSave])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Supabase error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
-        throw error;
-      }
-
-      console.log('Invoice saved successfully:', data);
       setMessage({ text: `Invoice ${isEdit ? 'updated' : 'saved'} successfully!`, type: 'success' });
       loadSavedInvoices();
       
       return data;
     } catch (error) {
       console.error('Error saving invoice:', error);
-      let errorMessage = 'Failed to save invoice';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('duplicate key')) {
-          errorMessage = 'Invoice number already exists';
-        } else if (error.message.includes('violates')) {
-          errorMessage = 'Invalid data provided';
-        } else if (error.message.includes('null value in column')) {
-          errorMessage = 'Required field is missing';
-        } else {
-          errorMessage = error.message;
-        }
-      }
-      
-      setMessage({ text: errorMessage, type: 'error' });
+      setMessage({ text: error instanceof Error ? error.message : 'Failed to save invoice', type: 'error' });
       return null;
     } finally {
       setIsLoading(false);
@@ -930,10 +849,7 @@ export default function InvoiceGenerator() {
     try {
       setIsLoading(true);
       
-      const { error } = await supabase
-        .from('invoices')
-        .delete()
-        .eq('id', invoiceId);
+      const { error } = await deleteInvoiceFromFirestore(invoiceId);
 
       if (error) throw error;
 

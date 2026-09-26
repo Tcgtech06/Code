@@ -1,50 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import Lottie from 'lottie-react';
 import oxAnimation from '../../ox.json';
-import { supabase } from '../lib/supabase';
+import { 
+  fetchJobPostings, 
+  createJobPosting, 
+  deleteJobPosting, 
+  fetchPositions as getPositions, 
+  createPosition as addPosition, 
+  deletePosition as removePosition, 
+  fetchJobApplications, 
+  updateJobApplication, 
+  deleteJobApplication,
+  JobPosting as Job,
+  Position,
+  JobApplicationData as JobApplication
+} from '../lib/firebase';
 import { Plus, X, ChevronDown, ChevronUp, Download, Eye, MessageCircle, Search, Trash2 } from 'lucide-react';
 import InvoiceGenerator from '../components/InvoiceGenerator';
 import LetterGenerator from '../components/LetterGenerator';
 import SalarySlipGenerator from '../components/SalarySlipGenerator';
 import QuotationGenerator from '../components/QuotationGenerator';
-
-interface JobApplication {
-  id: string;
-  first_name: string;
-  last_name: string | null;
-  email: string;
-  contact: string;
-  graduation_year: number;
-  gender: string;
-  position: string;
-  experience: string;
-  current_employer: string;
-  current_salary: string | null;
-  expected_salary: string | null;
-  skills: string;
-  location: string;
-  resume_url: string | null;
-  status: string;
-  created_at: string;
-}
-
-interface Job {
-  id: string;
-  title: string;
-  location: string;
-  type: string;
-  description: string;
-  position_id: string;
-  created_at: string;
-  positions?: {
-    title: string;
-  };
-}
-
-interface Position {
-  id: string;
-  title: string;
-}
 
 export default function Admin() {
   const [title, setTitle] = useState('');
@@ -79,11 +54,7 @@ export default function Admin() {
 
   const fetchApplications = async () => {
     try {
-      const { data, error } = await supabase
-        .from('job_applications')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      const { data, error } = await fetchJobApplications();
       if (error) throw error;
       setApplications(data || []);
     } catch (error) {
@@ -94,13 +65,9 @@ export default function Admin() {
 
   const fetchPositions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('positions')
-        .select('*')
-        .order('title');
-
+      const { data, error } = await getPositions();
       if (error) throw error;
-      setPositions(data);
+      setPositions(data || []);
     } catch (error) {
       console.error('Error fetching positions:', error);
       setMessage({ text: 'Failed to fetch positions', type: 'error' });
@@ -109,18 +76,9 @@ export default function Admin() {
 
   const fetchJobs = async () => {
     try {
-      const { data, error } = await supabase
-        .from('job_postings')
-        .select(`
-          *,
-          positions (
-            title
-          )
-        `)
-        .order('created_at', { ascending: false });
-
+      const { data, error } = await fetchJobPostings();
       if (error) throw error;
-      setJobs(data);
+      setJobs(data || []);
     } catch (error) {
       console.error('Error fetching jobs:', error);
       setMessage({ text: 'Failed to fetch jobs', type: 'error' });
@@ -133,9 +91,15 @@ export default function Admin() {
     setMessage({ text: '', type: '' });
 
     try {
-      const { error } = await supabase.from('job_postings').insert([
-        { title, location, type, description, position_id: positionId }
-      ]);
+      const selectedPos = positions.find(p => p.id === positionId);
+      const { error } = await createJobPosting({
+        title,
+        location,
+        type,
+        description,
+        position_id: positionId,
+        position_title: selectedPos ? selectedPos.title : undefined
+      });
 
       if (error) throw error;
 
@@ -158,11 +122,7 @@ export default function Admin() {
     if (!window.confirm('Are you sure you want to delete this job posting?')) return;
 
     try {
-      const { error } = await supabase
-        .from('job_postings')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await deleteJobPosting(id);
       if (error) throw error;
 
       setMessage({ text: 'Job posting deleted successfully!', type: 'success' });
@@ -178,10 +138,7 @@ export default function Admin() {
     if (!newPosition.trim()) return;
 
     try {
-      const { error } = await supabase
-        .from('positions')
-        .insert([{ title: newPosition.trim() }]);
-
+      const { error } = await addPosition(newPosition.trim());
       if (error) throw error;
 
       setMessage({ text: 'Position added successfully!', type: 'success' });
@@ -198,11 +155,7 @@ export default function Admin() {
     if (!window.confirm('Are you sure you want to delete this position? This will affect existing job postings.')) return;
 
     try {
-      const { error } = await supabase
-        .from('positions')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await removePosition(id);
       if (error) throw error;
 
       setMessage({ text: 'Position deleted successfully!', type: 'success' });
@@ -215,10 +168,9 @@ export default function Admin() {
 
   const updateApplicationStatus = async (id: string, status: string) => {
     try {
-      const { error } = await supabase
-        .from('job_applications')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', id);
+      const { error } = await updateJobApplication(id, { 
+        status: status as JobApplication['status'] 
+      });
 
       if (error) throw error;
 
@@ -234,41 +186,8 @@ export default function Admin() {
     if (!window.confirm(`Are you sure you want to delete the application from ${candidateName}? This action cannot be undone.`)) return;
 
     try {
-      // First get the application to check if there's a resume to delete
-      const { data: application, error: fetchError } = await supabase
-        .from('job_applications')
-        .select('resume_url')
-        .eq('id', id)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      // Delete resume from storage if it exists
-      if (application.resume_url) {
-        try {
-          // Extract file path from URL
-          const url = new URL(application.resume_url);
-          const filePath = url.pathname.split('/').pop();
-          
-          if (filePath) {
-            const { error: storageError } = await supabase.storage
-              .from('resumes')
-              .remove([filePath]);
-            
-            if (storageError) {
-              console.error('Error deleting resume file:', storageError);
-            }
-          }
-        } catch (storageError) {
-          console.error('Error deleting resume file:', storageError);
-        }
-      }
-
-      // Delete application from database
-      const { error } = await supabase
-        .from('job_applications')
-        .delete()
-        .eq('id', id);
+      const appToDelete = applications.find(a => a.id === id);
+      const { error } = await deleteJobApplication(id, appToDelete?.resume_url);
 
       if (error) throw error;
 

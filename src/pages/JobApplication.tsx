@@ -1,57 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { 
+  fetchPositions, 
+  saveJobApplication, 
+  uploadResumeFile, 
+  updateJobApplication,
+  Position 
+} from '../lib/firebase';
 
 export default function JobApplication() {
-  const [positions, setPositions] = useState([]);
+  const [positions, setPositions] = useState<Position[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [isCurrentlyEmployed, setIsCurrentlyEmployed] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   useEffect(() => {
-    fetchPositions();
+    loadPositions();
   }, []);
 
-  const fetchPositions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('positions')
-        .select('*')
-        .order('title');
-
-      if (error) throw error;
-      setPositions(data || []);
-    } catch (error) {
-      console.error('Error fetching positions:', error);
+  const loadPositions = async () => {
+    const { data, error } = await fetchPositions();
+    if (!error && data) {
+      setPositions(data);
     }
   };
 
   const uploadResume = async (file: File, applicationId: string): Promise<string | null> => {
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${applicationId}_${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
       setMessage({ text: '📤 Uploading resume...', type: 'info' });
-
-      const { error } = await supabase.storage
-        .from('resumes')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (error) {
-        console.error('Resume upload error:', error);
-        throw error;
-      }
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('resumes')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
+      const downloadUrl = await uploadResumeFile(file, applicationId);
+      return downloadUrl;
     } catch (error) {
       console.error('Error uploading resume:', error);
       return null;
@@ -90,97 +68,81 @@ export default function JobApplication() {
     const formData = new FormData(form);
     
     try {
-      // First, insert the application data
-      const { data: applicationData, error: dbError } = await supabase
-        .from('job_applications')
-        .insert([
-          {
-            first_name: formData.get('firstName'),
-            last_name: formData.get('lastName') || null,
-            email: formData.get('email'),
-            contact: formData.get('contact'),
-            graduation_year: parseInt(formData.get('graduationYear') as string),
-            gender: formData.get('gender'),
-            position: formData.get('Position'),
-            experience: formData.get('experience'),
-            current_employer: formData.get('currentEmployer'),
-            current_salary: formData.get('currentSalary') || null,
-            expected_salary: formData.get('expectedSalary') || null,
-            skills: formData.get('skills'),
-            location: formData.get('location'),
-            status: 'pending'
-          }
-        ])
-        .select()
-        .single();
+      // Save application to Firebase Firestore
+      const { data: applicationData, error: dbError } = await saveJobApplication({
+        first_name: String(formData.get('firstName') || ''),
+        last_name: formData.get('lastName') ? String(formData.get('lastName')) : null,
+        email: String(formData.get('email') || ''),
+        contact: String(formData.get('contact') || ''),
+        graduation_year: parseInt(formData.get('graduationYear') as string, 10) || new Date().getFullYear(),
+        gender: String(formData.get('gender') || ''),
+        position: String(formData.get('Position') || ''),
+        experience: String(formData.get('experience') || ''),
+        current_employer: formData.get('currentEmployer') ? String(formData.get('currentEmployer')) : null,
+        current_salary: formData.get('currentSalary') ? String(formData.get('currentSalary')) : null,
+        expected_salary: formData.get('expectedSalary') ? String(formData.get('expectedSalary')) : null,
+        skills: String(formData.get('skills') || ''),
+        location: String(formData.get('location') || ''),
+        status: 'pending'
+      });
 
-      if (dbError) throw dbError;
+      if (dbError || !applicationData) throw dbError || new Error('Failed to save application');
 
       let resumeUrl = null;
 
-      // Upload resume if provided
-      if (resumeFile) {
+      // Upload resume to Firebase Storage if provided
+      if (resumeFile && applicationData.id) {
         setMessage({ text: '📤 Uploading resume...', type: 'info' });
         resumeUrl = await uploadResume(resumeFile, applicationData.id);
         
         if (resumeUrl) {
-          // Update application with resume URL
-          const { error: updateError } = await supabase
-            .from('job_applications')
-            .update({ resume_url: resumeUrl })
-            .eq('id', applicationData.id);
-
-          if (updateError) {
-            console.error('Error updating resume URL:', updateError);
-          }
+          await updateJobApplication(applicationData.id, { resume_url: resumeUrl });
         }
       }
 
-      // Send to edge function for WhatsApp notification
-      const applicationDataForWhatsApp = {
-        firstName: formData.get('firstName'),
-        lastName: formData.get('lastName') || '',
-        email: formData.get('email'),
-        contact: formData.get('contact'),
-        graduationYear: formData.get('graduationYear'),
-        gender: formData.get('gender'),
-        position: formData.get('Position'),
-        experience: formData.get('experience'),
-        currentEmployer: formData.get('currentEmployer'),
-        currentSalary: formData.get('currentSalary') || '',
-        expectedSalary: formData.get('expectedSalary') || '',
-        skills: formData.get('skills'),
-        location: formData.get('location'),
-        resumeUploaded: resumeFile ? 'Yes' : 'No'
-      };
+      // Send WhatsApp notification if edge function is configured
+      if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        try {
+          const applicationDataForWhatsApp = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName') || '',
+            email: formData.get('email'),
+            contact: formData.get('contact'),
+            graduationYear: formData.get('graduationYear'),
+            gender: formData.get('gender'),
+            position: formData.get('Position'),
+            experience: formData.get('experience'),
+            currentEmployer: formData.get('currentEmployer'),
+            currentSalary: formData.get('currentSalary') || '',
+            expectedSalary: formData.get('expectedSalary') || '',
+            skills: formData.get('skills'),
+            location: formData.get('location'),
+            resumeUploaded: resumeFile ? 'Yes' : 'No'
+          };
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-job-application`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(applicationDataForWhatsApp),
-        signal: controller.signal
-      });
+          await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-job-application`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(applicationDataForWhatsApp),
+            signal: controller.signal
+          });
 
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        await response.json();
-        setMessage({ 
-          text: `✅ Application submitted successfully! ${resumeFile ? 'Resume uploaded.' : ''} We will contact you soon.`, 
-          type: 'success' 
-        });
-      } else {
-        setMessage({ 
-          text: `✅ Application submitted successfully! ${resumeFile ? 'Resume uploaded.' : ''} We will contact you soon.`, 
-          type: 'success' 
-        });
+          clearTimeout(timeoutId);
+        } catch (notifErr) {
+          console.warn('Notification service skipped:', notifErr);
+        }
       }
+
+      setMessage({ 
+        text: `✅ Application submitted successfully! ${resumeFile ? 'Resume uploaded.' : ''} We will contact you soon.`, 
+        type: 'success' 
+      });
 
       form.reset();
       setIsCurrentlyEmployed('');

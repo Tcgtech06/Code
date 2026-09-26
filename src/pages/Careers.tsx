@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Clock, Briefcase, DollarSign, Globe } from 'lucide-react';
-import { fetchJobPostings } from '../lib/supabase';
-import type { Database } from '../types/supabase';
-
-type JobPosting = Database['public']['Tables']['job_postings']['Row'];
+import { fetchJobPostings, JobPosting } from '../lib/firebase';
 
 export default function Careers() {
   const [jobs, setJobs] = useState<JobPosting[]>([]);
