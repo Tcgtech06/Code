@@ -68,6 +68,7 @@ interface Invoice {
   customColumns?: CustomColumn[];
   hiddenColumns?: string[];
   columnOrder?: ColumnOrder[];
+  [key: string]: unknown;
 }
 
 export default function InvoiceGenerator() {
@@ -256,8 +257,8 @@ export default function InvoiceGenerator() {
     }
   };
 
-  const editInvoice = async (originalInvoice: Record<string, unknown>) => {
-    const orig = originalInvoice;
+  const editInvoice = async (originalInvoice: Invoice | Record<string, unknown>) => {
+    const orig = originalInvoice as Record<string, any>;
     // Create a new version of the invoice with proper field mapping
     const editedInvoice: Invoice = {
       id: undefined, // Remove ID to create new record
@@ -680,8 +681,8 @@ export default function InvoiceGenerator() {
     }
   };
 
-  const loadInvoice = (savedInvoice: Record<string, unknown>) => {
-    const inv = savedInvoice;
+  const loadInvoice = (savedInvoice: Invoice | Record<string, unknown>) => {
+    const inv = savedInvoice as Record<string, any>;
     // Map database fields to invoice state
     const mappedInvoice: Invoice = {
       id: inv.id ? String(inv.id) : undefined,
