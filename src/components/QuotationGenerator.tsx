@@ -23,7 +23,8 @@ import {
   TableCell, 
   TableRow, 
   WidthType, 
-  AlignmentType
+  AlignmentType,
+  ShadingType
 } from 'docx';
 import { saveAs } from 'file-saver';
 
@@ -891,7 +892,7 @@ export default function QuotationGenerator() {
               new Paragraph({
                 alignment: AlignmentType.RIGHT,
                 spacing: { after: 200 },
-                children: [new TextRun({ text: `Amount in Words: ${numberToWords(grandTotal)}`, italic: true, size: 18, color: '475569' })]
+                children: [new TextRun({ text: `Amount in Words: ${numberToWords(grandTotal)}`, italics: true, size: 18, color: '475569' })]
               }),
 
               // Milestones Section
