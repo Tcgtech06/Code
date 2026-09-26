@@ -60,7 +60,8 @@ function AppContent() {
         </Routes>
       </main>
       <Footer />
-      {showLuna && <LunaWidget />}
+      {/* Luna chatbot temporarily disabled */}
+      {/* {showLuna && <LunaWidget />} */}
     </div>
   );
 }

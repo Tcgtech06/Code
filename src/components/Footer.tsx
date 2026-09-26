@@ -1,6 +1,5 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Linkedin, Instagram } from 'lucide-react';
+import { Facebook, Instagram } from 'lucide-react';
 
 // Custom X (formerly Twitter) icon component
 const XIcon = ({ className }: { className?: string }) => (
