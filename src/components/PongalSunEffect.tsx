@@ -185,7 +185,7 @@ const PongalSunEffect: React.FC<PongalSunEffectProps> = ({
           </>
         );
         
-      case 'night':
+      case 'night': {
         const now = new Date();
         const hour = now.getHours();
         const isLateNight = hour >= 20; // 8 PM and later
@@ -223,6 +223,7 @@ const PongalSunEffect: React.FC<PongalSunEffectProps> = ({
 
           </>
         );
+      }
         
       default:
         return null;

@@ -21,7 +21,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 
 // Helper function to check if error is from Supabase
 export const isSupabaseError = (error: unknown): boolean => {
-  return error instanceof Error && 'code' in (error as any);
+  return error instanceof Error && 'code' in (error as Record<string, unknown>);
 };
 
 // Type-safe fetch function for job postings

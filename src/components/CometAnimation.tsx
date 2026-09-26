@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
+const isPongalSeason = (date: Date) => {
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return month === 1 && day >= 10 && day <= 18;
+};
+
 const CometAnimation: React.FC = () => {
   const [collision, setCollision] = useState<{ x: number; y: number } | null>(null);
   const [currentHour, setCurrentHour] = useState(new Date().getHours());
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  const isPongalSeason = () => {
-    const month = currentDate.getMonth() + 1;
-    const day = currentDate.getDate();
-    return month === 1 && day >= 10 && day <= 18;
-  };
 
   const isNightTime = () => currentHour >= 18 || currentHour < 6;
 
@@ -24,7 +24,7 @@ const CometAnimation: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!isPongalSeason()) return;
+    if (!isPongalSeason(currentDate)) return;
     
     const triggerCollision = () => {
       setCollision({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
@@ -35,7 +35,7 @@ const CometAnimation: React.FC = () => {
     return () => clearInterval(interval);
   }, [currentDate]);
 
-  if (!isPongalSeason()) return null;
+  if (!isPongalSeason(currentDate)) return null;
 
   return (
     <>

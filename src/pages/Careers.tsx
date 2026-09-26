@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Clock, Briefcase } from 'lucide-react';
+import { MapPin, Clock, Briefcase, DollarSign, Globe } from 'lucide-react';
 import { fetchJobPostings } from '../lib/supabase';
 import type { Database } from '../types/supabase';
 
@@ -148,16 +148,13 @@ export default function Careers() {
               <div className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 animate-fade-in-up animation-delay-400">
                 <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform group-hover:scale-110 transition-transform duration-300 shadow-md">
                     <Clock className="h-10 w-10 text-white animate-pulse" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Free Work Hours</h3>
                   <p className="text-gray-600 text-center leading-relaxed">
                     Enjoy complete flexibility in your work schedule. Work when you're most productive and maintain perfect work-life balance.
                   </p>
-                  <div className="mt-6 flex justify-center">
-                    <div className="text-3xl animate-bounce">⏰</div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -167,18 +164,13 @@ export default function Careers() {
               <div className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 animate-fade-in-up animation-delay-600">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform group-hover:scale-110 transition-transform duration-300">
-                    <svg className="h-10 w-10 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
+                  <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform group-hover:scale-110 transition-transform duration-300 shadow-md">
+                    <DollarSign className="h-10 w-10 text-white animate-pulse" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Get Paid For Your Contribution</h3>
                   <p className="text-gray-600 text-center leading-relaxed">
                     Fair compensation based on your actual contributions and impact. Your efforts are recognized and rewarded appropriately.
                   </p>
-                  <div className="mt-6 flex justify-center">
-                    <div className="text-3xl animate-bounce animation-delay-200">💰</div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -188,18 +180,13 @@ export default function Careers() {
               <div className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 animate-fade-in-up animation-delay-800">
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform group-hover:scale-110 transition-transform duration-300">
-                    <svg className="h-10 w-10 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                    </svg>
+                  <div className="w-20 h-20 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform group-hover:scale-110 transition-transform duration-300 shadow-md">
+                    <Globe className="h-10 w-10 text-white animate-pulse" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Work From Anywhere</h3>
                   <p className="text-gray-600 text-center leading-relaxed">
                     Location independence at its finest. Work from home, a café, or anywhere in the world. Your office is wherever you are.
                   </p>
-                  <div className="mt-6 flex justify-center">
-                    <div className="text-3xl animate-bounce animation-delay-400">🌍</div>
-                  </div>
                 </div>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Briefcase, AlertCircle, DollarSign } from 'lucide-react';
+import { FileText, Briefcase, DollarSign } from 'lucide-react';
 import InvoiceGenerator from './InvoiceGenerator';
 import LetterGenerator from './LetterGenerator';
 import SalarySlipGenerator from './SalarySlipGenerator';

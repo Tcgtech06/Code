@@ -7,7 +7,6 @@ export default function JobApplication() {
   const [message, setMessage] = useState({ text: '', type: '' });
   const [isCurrentlyEmployed, setIsCurrentlyEmployed] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     fetchPositions();
@@ -35,7 +34,7 @@ export default function JobApplication() {
 
       setMessage({ text: '📤 Uploading resume...', type: 'info' });
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('resumes')
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -171,7 +170,7 @@ export default function JobApplication() {
       clearTimeout(timeoutId);
 
       if (response.ok) {
-        const result = await response.json();
+        await response.json();
         setMessage({ 
           text: `✅ Application submitted successfully! ${resumeFile ? 'Resume uploaded.' : ''} We will contact you soon.`, 
           type: 'success' 

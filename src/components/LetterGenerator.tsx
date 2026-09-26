@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Download, FileText, Mail, Calendar, User, Briefcase, AlertCircle } from 'lucide-react';
+import { Download, FileText, Briefcase, AlertCircle } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 interface LetterData {
@@ -133,7 +133,6 @@ export default function LetterGenerator() {
 
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 20;
     const contentWidth = pageWidth - (margin * 2);
     

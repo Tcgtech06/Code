@@ -115,14 +115,12 @@ export default function InvoiceGenerator() {
   const [message, setMessage] = useState({ text: '', type: '' });
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [showSearch, setShowSearch] = useState(false);
-  const [showAddRows, setShowAddRows] = useState(false);
   const [includeDueDate, setIncludeDueDate] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [newColumnName, setNewColumnName] = useState('');
   const [newColumnType, setNewColumnType] = useState<'text' | 'number'>('text');
   const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
   const invoiceRef = useRef<HTMLDivElement>(null);
-  const pdfRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     generateNextInvoiceNumber();
@@ -181,7 +179,7 @@ export default function InvoiceGenerator() {
       // Ensure all numeric properties are properly initialized
       const processedInvoices = (data || []).map(invoice => ({
         ...invoice,
-        items: (invoice.items || []).map((item: any) => ({
+        items: ((invoice.items as InvoiceItem[]) || []).map((item) => ({
           ...item,
           quantity: Number(item.quantity) || 0,
           rate: Number(item.rate) || 0,
@@ -218,7 +216,7 @@ export default function InvoiceGenerator() {
       // Ensure all numeric properties are properly initialized
       const processedResults = (data || []).map(invoice => ({
         ...invoice,
-        items: (invoice.items || []).map((item: any) => ({
+        items: ((invoice.items as InvoiceItem[]) || []).map((item) => ({
           ...item,
           quantity: Number(item.quantity) || 0,
           rate: Number(item.rate) || 0,
@@ -339,53 +337,54 @@ export default function InvoiceGenerator() {
     }
   };
 
-  const editInvoice = async (originalInvoice: any) => {
+  const editInvoice = async (originalInvoice: Record<string, unknown>) => {
+    const orig = originalInvoice;
     // Create a new version of the invoice with proper field mapping
     const editedInvoice: Invoice = {
       id: undefined, // Remove ID to create new record
-      invoiceNumber: originalInvoice.invoice_number || originalInvoice.invoiceNumber,
-      date: originalInvoice.invoice_date || originalInvoice.date,
-      dueDate: originalInvoice.due_date || originalInvoice.dueDate,
-      hsnCode: originalInvoice.hsn_code || originalInvoice.hsnCode || '',
-      clientName: originalInvoice.client_name || originalInvoice.clientName,
-      clientEmail: originalInvoice.client_email || originalInvoice.clientEmail || '',
-      clientAddress: originalInvoice.client_address || originalInvoice.clientAddress || '',
-      clientPhone: originalInvoice.client_phone || originalInvoice.clientPhone || '',
-      items: originalInvoice.items || [],
-      subtotal: Number(originalInvoice.subtotal) || 0,
-      taxRate: Number(originalInvoice.tax_rate || originalInvoice.taxRate) || 18,
-      taxAmount: Number(originalInvoice.tax_amount || originalInvoice.taxAmount) || 0,
-      total: Number(originalInvoice.total) || 0,
-      paidAmount: Number(originalInvoice.paid_amount || originalInvoice.paidAmount) || 0,
-      balance: Number(originalInvoice.balance) || 0,
-      showBalance: originalInvoice.show_balance || originalInvoice.showBalance || false,
-      gstType: originalInvoice.gst_type || originalInvoice.gstType || 'IGST',
-      sgstRate: Number(originalInvoice.sgst_rate || originalInvoice.sgstRate) || 9,
-      cgstRate: Number(originalInvoice.cgst_rate || originalInvoice.cgstRate) || 9,
-      igstRate: Number(originalInvoice.igst_rate || originalInvoice.igstRate) || 18,
-      sgstAmount: Number(originalInvoice.sgst_amount || originalInvoice.sgstAmount) || 0,
-      cgstAmount: Number(originalInvoice.cgst_amount || originalInvoice.cgstAmount) || 0,
-      igstAmount: Number(originalInvoice.igst_amount || originalInvoice.igstAmount) || 0,
-      notes: originalInvoice.notes || '',
-      status: originalInvoice.status || 'draft',
-      version: (originalInvoice.version || 1) + 1,
-      originalId: originalInvoice.original_id || originalInvoice.originalId || originalInvoice.id,
-      invoiceType: originalInvoice.invoice_type || originalInvoice.invoiceType || 'INVOICE',
-      customInvoiceTitle: originalInvoice.custom_invoice_title || originalInvoice.customInvoiceTitle || '',
-      showNoOfPages: originalInvoice.show_no_of_pages || originalInvoice.showNoOfPages || false,
-      showNoOfDays: originalInvoice.show_no_of_days || originalInvoice.showNoOfDays || false,
-      customColumns: originalInvoice.custom_columns || originalInvoice.customColumns || [],
-      hiddenColumns: originalInvoice.hidden_columns || originalInvoice.hiddenColumns || [],
-      columnOrder: originalInvoice.column_order || originalInvoice.columnOrder || [
+      invoiceNumber: String(orig.invoice_number || orig.invoiceNumber || ''),
+      date: String(orig.invoice_date || orig.date || ''),
+      dueDate: String(orig.due_date || orig.dueDate || ''),
+      hsnCode: String(orig.hsn_code || orig.hsnCode || ''),
+      clientName: String(orig.client_name || orig.clientName || ''),
+      clientEmail: String(orig.client_email || orig.clientEmail || ''),
+      clientAddress: String(orig.client_address || orig.clientAddress || ''),
+      clientPhone: String(orig.client_phone || orig.clientPhone || ''),
+      items: (orig.items as InvoiceItem[]) || [],
+      subtotal: Number(orig.subtotal) || 0,
+      taxRate: Number(orig.tax_rate || orig.taxRate) || 18,
+      taxAmount: Number(orig.tax_amount || orig.taxAmount) || 0,
+      total: Number(orig.total) || 0,
+      paidAmount: Number(orig.paid_amount || orig.paidAmount) || 0,
+      balance: Number(orig.balance) || 0,
+      showBalance: Boolean(orig.show_balance || orig.showBalance || false),
+      gstType: (orig.gst_type || orig.gstType || 'IGST') as 'IGST' | 'SGST_CGST',
+      sgstRate: Number(orig.sgst_rate || orig.sgstRate) || 9,
+      cgstRate: Number(orig.cgst_rate || orig.cgstRate) || 9,
+      igstRate: Number(orig.igst_rate || orig.igstRate) || 18,
+      sgstAmount: Number(orig.sgst_amount || orig.sgstAmount) || 0,
+      cgstAmount: Number(orig.cgst_amount || orig.cgstAmount) || 0,
+      igstAmount: Number(orig.igst_amount || orig.igstAmount) || 0,
+      notes: String(orig.notes || ''),
+      status: (orig.status || 'draft') as 'draft' | 'saved' | 'sent' | 'paid',
+      version: Number(orig.version || 1) + 1,
+      originalId: String(orig.original_id || orig.originalId || orig.id || ''),
+      invoiceType: (orig.invoice_type || orig.invoiceType || 'INVOICE') as Invoice['invoiceType'],
+      customInvoiceTitle: String(orig.custom_invoice_title || orig.customInvoiceTitle || ''),
+      showNoOfPages: Boolean(orig.show_no_of_pages || orig.showNoOfPages || false),
+      showNoOfDays: Boolean(orig.show_no_of_days || orig.showNoOfDays || false),
+      customColumns: (orig.custom_columns || orig.customColumns || []) as CustomColumn[],
+      hiddenColumns: (orig.hidden_columns || orig.hiddenColumns || []) as string[],
+      columnOrder: (orig.column_order || orig.columnOrder || [
         { id: 'description', name: 'Description', type: 'default' },
         { id: 'quantity', name: 'Qty', type: 'default' },
         { id: 'rate', name: 'Rate', type: 'default' },
         { id: 'amount', name: 'Amount', type: 'default' }
-      ]
+      ]) as ColumnOrder[]
     };
 
     setInvoice(editedInvoice);
-    setEditingInvoice(originalInvoice);
+    setEditingInvoice(originalInvoice as unknown as Invoice);
     setShowPreview(false);
     setShowSearch(false);
   };
@@ -407,10 +406,6 @@ export default function InvoiceGenerator() {
       ...prev,
       items: [...prev.items, ...newItems]
     }));
-  };
-
-  const addItem = () => {
-    addMultipleItems(1);
   };
 
   const clearAllItems = () => {
@@ -537,8 +532,9 @@ export default function InvoiceGenerator() {
       customColumns: (prev.customColumns || []).filter(col => col.id !== columnId),
       columnOrder: (prev.columnOrder || []).filter(col => col.id !== columnId),
       items: prev.items.map(item => {
-        const { [columnId]: removed, ...rest } = item;
-        return rest as InvoiceItem;
+        const copy = { ...item };
+        delete copy[columnId];
+        return copy;
       })
     }));
   };
@@ -726,20 +722,6 @@ export default function InvoiceGenerator() {
     return null;
   };
 
-  const updateTaxRate = (rate: number) => {
-    setInvoice(prev => {
-      const taxAmount = (prev.subtotal * rate) / 100;
-      const total = prev.subtotal + taxAmount;
-      
-      return {
-        ...prev,
-        taxRate: rate,
-        taxAmount,
-        total
-      };
-    });
-  };
-
   const saveInvoice = async () => {
     if (!invoice.clientName.trim()) {
       setMessage({ text: 'Please enter client name', type: 'error' });
@@ -779,49 +761,50 @@ export default function InvoiceGenerator() {
     }
   };
 
-  const loadInvoice = (savedInvoice: any) => {
+  const loadInvoice = (savedInvoice: Record<string, unknown>) => {
+    const inv = savedInvoice;
     // Map database fields to invoice state
     const mappedInvoice: Invoice = {
-      id: savedInvoice.id,
-      invoiceNumber: savedInvoice.invoice_number || savedInvoice.invoiceNumber,
-      date: savedInvoice.invoice_date || savedInvoice.date,
-      dueDate: savedInvoice.due_date || savedInvoice.dueDate,
-      hsnCode: savedInvoice.hsn_code || savedInvoice.hsnCode || '',
-      clientName: savedInvoice.client_name || savedInvoice.clientName,
-      clientEmail: savedInvoice.client_email || savedInvoice.clientEmail || '',
-      clientAddress: savedInvoice.client_address || savedInvoice.clientAddress || '',
-      clientPhone: savedInvoice.client_phone || savedInvoice.clientPhone || '',
-      items: savedInvoice.items || [],
-      subtotal: Number(savedInvoice.subtotal) || 0,
-      taxRate: Number(savedInvoice.tax_rate || savedInvoice.taxRate) || 18,
-      taxAmount: Number(savedInvoice.tax_amount || savedInvoice.taxAmount) || 0,
-      total: Number(savedInvoice.total) || 0,
-      paidAmount: Number(savedInvoice.paid_amount || savedInvoice.paidAmount) || 0,
-      balance: Number(savedInvoice.balance) || 0,
-      showBalance: savedInvoice.show_balance || savedInvoice.showBalance || false,
-      gstType: savedInvoice.gst_type || savedInvoice.gstType || 'IGST',
-      sgstRate: Number(savedInvoice.sgst_rate || savedInvoice.sgstRate) || 9,
-      cgstRate: Number(savedInvoice.cgst_rate || savedInvoice.cgstRate) || 9,
-      igstRate: Number(savedInvoice.igst_rate || savedInvoice.igstRate) || 18,
-      sgstAmount: Number(savedInvoice.sgst_amount || savedInvoice.sgstAmount) || 0,
-      cgstAmount: Number(savedInvoice.cgst_amount || savedInvoice.cgstAmount) || 0,
-      igstAmount: Number(savedInvoice.igst_amount || savedInvoice.igstAmount) || 0,
-      notes: savedInvoice.notes || '',
-      status: savedInvoice.status || 'draft',
-      version: savedInvoice.version || 1,
-      originalId: savedInvoice.original_id || savedInvoice.originalId,
-      invoiceType: savedInvoice.invoice_type || savedInvoice.invoiceType || 'INVOICE',
-      customInvoiceTitle: savedInvoice.custom_invoice_title || savedInvoice.customInvoiceTitle || '',
-      showNoOfPages: savedInvoice.show_no_of_pages || savedInvoice.showNoOfPages || false,
-      showNoOfDays: savedInvoice.show_no_of_days || savedInvoice.showNoOfDays || false,
-      customColumns: savedInvoice.custom_columns || savedInvoice.customColumns || [],
-      hiddenColumns: savedInvoice.hidden_columns || savedInvoice.hiddenColumns || [],
-      columnOrder: savedInvoice.column_order || savedInvoice.columnOrder || [
+      id: inv.id ? String(inv.id) : undefined,
+      invoiceNumber: String(inv.invoice_number || inv.invoiceNumber || ''),
+      date: String(inv.invoice_date || inv.date || ''),
+      dueDate: String(inv.due_date || inv.dueDate || ''),
+      hsnCode: String(inv.hsn_code || inv.hsnCode || ''),
+      clientName: String(inv.client_name || inv.clientName || ''),
+      clientEmail: String(inv.client_email || inv.clientEmail || ''),
+      clientAddress: String(inv.client_address || inv.clientAddress || ''),
+      clientPhone: String(inv.client_phone || inv.clientPhone || ''),
+      items: (inv.items as InvoiceItem[]) || [],
+      subtotal: Number(inv.subtotal) || 0,
+      taxRate: Number(inv.tax_rate || inv.taxRate) || 18,
+      taxAmount: Number(inv.tax_amount || inv.taxAmount) || 0,
+      total: Number(inv.total) || 0,
+      paidAmount: Number(inv.paid_amount || inv.paidAmount) || 0,
+      balance: Number(inv.balance) || 0,
+      showBalance: Boolean(inv.show_balance || inv.showBalance || false),
+      gstType: (inv.gst_type || inv.gstType || 'IGST') as 'IGST' | 'SGST_CGST',
+      sgstRate: Number(inv.sgst_rate || inv.sgstRate) || 9,
+      cgstRate: Number(inv.cgst_rate || inv.cgstRate) || 9,
+      igstRate: Number(inv.igst_rate || inv.igstRate) || 18,
+      sgstAmount: Number(inv.sgst_amount || inv.sgstAmount) || 0,
+      cgstAmount: Number(inv.cgst_amount || inv.cgstAmount) || 0,
+      igstAmount: Number(inv.igst_amount || inv.igstAmount) || 0,
+      notes: String(inv.notes || ''),
+      status: (inv.status || 'draft') as 'draft' | 'saved' | 'sent' | 'paid',
+      version: Number(inv.version || 1),
+      originalId: inv.original_id ? String(inv.original_id) : (inv.originalId ? String(inv.originalId) : undefined),
+      invoiceType: (inv.invoice_type || inv.invoiceType || 'INVOICE') as Invoice['invoiceType'],
+      customInvoiceTitle: String(inv.custom_invoice_title || inv.customInvoiceTitle || ''),
+      showNoOfPages: Boolean(inv.show_no_of_pages || inv.showNoOfPages || false),
+      showNoOfDays: Boolean(inv.show_no_of_days || inv.showNoOfDays || false),
+      customColumns: (inv.custom_columns || inv.customColumns || []) as CustomColumn[],
+      hiddenColumns: (inv.hidden_columns || inv.hiddenColumns || []) as string[],
+      columnOrder: (inv.column_order || inv.columnOrder || [
         { id: 'description', name: 'Description', type: 'default' },
         { id: 'quantity', name: 'Qty', type: 'default' },
         { id: 'rate', name: 'Rate', type: 'default' },
         { id: 'amount', name: 'Amount', type: 'default' }
-      ]
+      ]) as ColumnOrder[]
     };
     
     setInvoice(mappedInvoice);

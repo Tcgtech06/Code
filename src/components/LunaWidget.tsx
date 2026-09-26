@@ -51,7 +51,6 @@ function LunaWidget() {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
   const [userProfile] = useState({ user_id: 'widget_' + Date.now() });
   const [leadData, setLeadData] = useState<LeadData>({});
   

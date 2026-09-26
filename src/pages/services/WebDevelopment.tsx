@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, Globe, Code, Smartphone, Zap, Shield } from 'lucide-react';
+import { ArrowLeft, Check, Globe, Code, Smartphone, Zap } from 'lucide-react';
 
 export default function WebDevelopment() {
   useEffect(() => {

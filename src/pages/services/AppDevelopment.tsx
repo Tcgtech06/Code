@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, Smartphone, Monitor, Shield, Headphones, Store, Wrench } from 'lucide-react';
+import { ArrowLeft, Check, Smartphone, Shield, Headphones, Store, Wrench } from 'lucide-react';
 
 export default function AppDevelopment() {
   useEffect(() => {

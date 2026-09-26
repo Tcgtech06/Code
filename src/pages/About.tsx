@@ -1,5 +1,16 @@
 import { useEffect, useRef } from 'react';
-import { Target, Award } from 'lucide-react';
+import { 
+  Target, 
+  Award, 
+  Clock, 
+  DollarSign, 
+  Rocket, 
+  Briefcase, 
+  Sparkles, 
+  TrendingUp, 
+  Wrench, 
+  Building2 
+} from 'lucide-react';
 
 export default function About() {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -402,22 +413,30 @@ export default function About() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
             <div className="culture-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-blue-500 bg-gradient-to-br from-white to-blue-50">
-              <div className="culture-emoji mb-4">⏰</div>
+              <div className="w-14 h-14 mx-auto mb-4 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm">
+                <Clock className="w-7 h-7" />
+              </div>
               <h3 className="text-base md:text-xl font-semibold mb-3 text-gray-800">Free working Hours</h3>
               <p className="text-gray-600 leading-relaxed">Enjoy flexible working hours that fit your lifestyle and boost productivity.</p>
             </div>
             <div className="culture-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-green-500 bg-gradient-to-br from-white to-green-50">
-              <div className="culture-emoji mb-4">💰</div>
+              <div className="w-14 h-14 mx-auto mb-4 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 shadow-sm">
+                <DollarSign className="w-7 h-7" />
+              </div>
               <h3 className="text-base md:text-xl font-semibold mb-3 text-gray-800">Industry leading Earning</h3>
               <p className="text-gray-600 leading-relaxed">Earn competitive compensation based on your project contributions and impact.</p>
             </div>
             <div className="culture-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-yellow-500 bg-gradient-to-br from-white to-yellow-50">
-              <div className="culture-emoji mb-4">🚀</div>
+              <div className="w-14 h-14 mx-auto mb-4 bg-yellow-100 rounded-2xl flex items-center justify-center text-yellow-600 shadow-sm">
+                <Rocket className="w-7 h-7" />
+              </div>
               <h3 className="text-base md:text-xl font-semibold mb-3 text-gray-800">Learning Technologies</h3>
               <p className="text-gray-600 leading-relaxed">Stay ahead with continuous learning and access to cutting-edge technologies.</p>
             </div>
             <div className="culture-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-purple-500 bg-gradient-to-br from-white to-purple-50">
-              <div className="culture-emoji mb-4">🎯</div>
+              <div className="w-14 h-14 mx-auto mb-4 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 shadow-sm">
+                <Briefcase className="w-7 h-7" />
+              </div>
               <h3 className="text-base md:text-xl font-semibold mb-3 text-gray-800">Multi-Role Experience</h3>
               <p className="text-gray-600 leading-relaxed">Expand your skill set and career prospects by engaging in diverse roles and projects.</p>
             </div>
@@ -432,7 +451,7 @@ export default function About() {
 
           <div className="relative">
             {/* Timeline connector line - visible on all screens */}
-            <div className="absolute left-8 md:left-1/2 transform md:-translate-x-1/2 w-1 h-full bg-gradient-to-b from-red-400 via-yellow-400 to-blue-400"></div>
+            <div className="absolute left-8 md:left-1/2 transform md:-translate-x-1/2 w-1 h-full bg-gradient-to-b from-red-400 via-yellow-400 to-purple-500"></div>
 
             <div className="space-y-12">
               {/* 2021 - The Spark Begins */}
@@ -440,7 +459,7 @@ export default function About() {
                 <div className="flex flex-col md:flex-row items-center gap-8">
                   <div className="md:w-5/12 md:text-right">
                     <div className="bg-gradient-to-br from-red-50 to-red-100 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-red-300 ml-16 md:ml-0 animate-on-scroll animate-slideInFromLeft delay-400">
-                      <h3 className="text-xl md:text-3xl font-bold mb-3 text-red-600 animate-on-scroll animate-fadeInUp delay-600">2021 ✨</h3>
+                      <h3 className="text-xl md:text-3xl font-bold mb-3 text-red-600 animate-on-scroll animate-fadeInUp delay-600">2021</h3>
                       <h4 className="text-lg md:text-2xl font-semibold mb-3 text-red-700 animate-on-scroll animate-fadeInUp delay-800">The Spark Begins</h4>
                       <p className="text-gray-700 leading-relaxed animate-on-scroll animate-fadeInUp delay-1000">
                         TCG TECH was born as a technology-focused YouTube channel, created to share knowledge, explore innovation, and simplify technology for everyone. What started as curiosity quickly turned into purpose.
@@ -449,7 +468,7 @@ export default function About() {
                   </div>
                   <div className="flex md:w-2/12 justify-center absolute left-0 md:static">
                     <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white z-10 animate-on-scroll animate-zoomIn delay-500">
-                      <span className="text-3xl">✨</span>
+                      <Sparkles className="w-8 h-8 text-white" />
                     </div>
                   </div>
                   <div className="md:w-5/12"></div>
@@ -462,12 +481,12 @@ export default function About() {
                   <div className="md:w-5/12"></div>
                   <div className="flex md:w-2/12 justify-center absolute left-0 md:static">
                     <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white z-10 animate-on-scroll animate-bounceIn delay-700">
-                      <span className="text-xl md:text-3xl">📈</span>
+                      <TrendingUp className="w-8 h-8 text-white" />
                     </div>
                   </div>
                   <div className="md:w-5/12 md:text-left">
                     <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-orange-300 ml-16 md:ml-0 animate-on-scroll animate-slideInFromRight delay-800">
-                      <h3 className="text-xl md:text-3xl font-bold mb-3 text-orange-600 animate-on-scroll animate-fadeInUp delay-1000">2022 📈</h3>
+                      <h3 className="text-xl md:text-3xl font-bold mb-3 text-orange-600 animate-on-scroll animate-fadeInUp delay-1000">2022</h3>
                       <h4 className="text-lg md:text-2xl font-semibold mb-3 text-orange-700 animate-on-scroll animate-fadeInUp delay-1200">Momentum Takes Shape</h4>
                       <p className="text-gray-700 leading-relaxed animate-on-scroll animate-fadeInUp delay-1400">
                         Consistency met community. Our content began reaching wider audiences, earning growing subscribers and high viewership. This year proved that value-driven technology content can build trust and influence.
@@ -482,7 +501,7 @@ export default function About() {
                 <div className="flex flex-col md:flex-row items-center gap-8">
                   <div className="md:w-5/12 md:text-right">
                     <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-yellow-300 ml-16 md:ml-0 animate-on-scroll animate-flipIn delay-900">
-                      <h3 className="text-xl md:text-3xl font-bold mb-3 text-yellow-600 animate-on-scroll animate-fadeInUp delay-1200">2023 🛠️</h3>
+                      <h3 className="text-xl md:text-3xl font-bold mb-3 text-yellow-600 animate-on-scroll animate-fadeInUp delay-1200">2023</h3>
                       <h4 className="text-lg md:text-2xl font-semibold mb-3 text-yellow-700 animate-on-scroll animate-fadeInUp delay-1400">From Learning to Building</h4>
                       <p className="text-gray-700 leading-relaxed animate-on-scroll animate-fadeInUp delay-1600">
                         A defining transformation year. We stepped into freelance software development, converting expertise into real-world solutions. At the same time, our channel proudly crossed 1,000+ subscribers, marking our first major milestone.
@@ -491,7 +510,7 @@ export default function About() {
                   </div>
                   <div className="flex md:w-2/12 justify-center absolute left-0 md:static">
                     <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white z-10 animate-on-scroll animate-rotateIn delay-1000">
-                      <span className="text-3xl">🛠️</span>
+                      <Wrench className="w-8 h-8 text-white" />
                     </div>
                   </div>
                   <div className="md:w-5/12"></div>
@@ -504,12 +523,12 @@ export default function About() {
                   <div className="md:w-5/12"></div>
                   <div className="flex md:w-2/12 justify-center absolute left-0 md:static">
                     <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white z-10 animate-on-scroll animate-zoomIn delay-1200">
-                      <span className="text-3xl">🎯</span>
+                      <Target className="w-8 h-8 text-white" />
                     </div>
                   </div>
                   <div className="md:w-5/12 md:text-left">
                     <div className="bg-gradient-to-br from-green-50 to-green-100 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-green-300 ml-16 md:ml-0 animate-on-scroll animate-slideInRotate delay-1300">
-                      <h3 className="text-3xl font-bold mb-3 text-green-600 animate-on-scroll animate-fadeInUp delay-1500">2024 🎯</h3>
+                      <h3 className="text-3xl font-bold mb-3 text-green-600 animate-on-scroll animate-fadeInUp delay-1500">2024</h3>
                       <h4 className="text-2xl font-semibold mb-3 text-green-700 animate-on-scroll animate-fadeInUp delay-1700">Vision Finds Direction</h4>
                       <p className="text-gray-700 leading-relaxed animate-on-scroll animate-fadeInUp delay-1900">
                         With clarity came collaboration. TCG TECH expanded into a two-member core team and laid the groundwork for becoming a product-based IT startup. The focus shifted from short-term projects to long-term impact.
@@ -524,7 +543,7 @@ export default function About() {
                 <div className="flex flex-col md:flex-row items-center gap-8">
                   <div className="md:w-5/12 md:text-right">
                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-blue-300 ml-16 md:ml-0 animate-on-scroll animate-slideInFromLeft delay-1600">
-                      <h3 className="text-3xl font-bold mb-3 text-blue-600 animate-on-scroll animate-fadeInUp delay-1800">2025 🚀</h3>
+                      <h3 className="text-3xl font-bold mb-3 text-blue-600 animate-on-scroll animate-fadeInUp delay-1800">2025</h3>
                       <h4 className="text-2xl font-semibold mb-3 text-blue-700 animate-on-scroll animate-fadeInUp delay-2000">Ideas Meet Execution</h4>
                       <p className="text-gray-700 leading-relaxed animate-on-scroll animate-fadeInUp delay-2000">
                         Growth powered by delivery. We successfully served 20+ freelance clients, strengthening our industry presence. Parallelly, we began in-house product development, transforming concepts into scalable digital platforms.
@@ -533,7 +552,7 @@ export default function About() {
                   </div>
                   <div className="flex md:w-2/12 justify-center absolute left-0 md:static">
                     <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white z-10 animate-on-scroll animate-zoomIn delay-1700">
-                      <span className="text-3xl">🚀</span>
+                      <Rocket className="w-8 h-8 text-white" />
                     </div>
                   </div>
                   <div className="md:w-5/12"></div>
@@ -546,57 +565,18 @@ export default function About() {
                   <div className="md:w-5/12"></div>
                   <div className="flex md:w-2/12 justify-center absolute left-0 md:static">
                     <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white z-10 animate-on-scroll animate-bounceIn delay-2000">
-                      <span className="text-3xl">🏢</span>
+                      <Building2 className="w-8 h-8 text-white" />
                     </div>
                   </div>
                   <div className="md:w-5/12 md:text-left">
                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-purple-300 ml-16 md:ml-0 animate-on-scroll animate-slideInFromRight delay-2000">
-                      <h3 className="text-3xl font-bold mb-3 text-purple-600 animate-on-scroll animate-fadeInUp delay-2000">2026 🏢</h3>
+                      <h3 className="text-3xl font-bold mb-3 text-purple-600 animate-on-scroll animate-fadeInUp delay-2000">2026</h3>
                       <h4 className="text-2xl font-semibold mb-3 text-purple-700 animate-on-scroll animate-fadeInUp delay-2000">Innovation Becomes Identity</h4>
                       <p className="text-gray-700 leading-relaxed animate-on-scroll animate-fadeInUp delay-2000">
                         A new chapter officially began. TCG TECH was registered as a product-based IT startup, now powered by a five-member team dedicated to building meaningful, future-ready solutions.
                       </p>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Coming Soon - Combined Block */}
-              <div className="relative animate-on-scroll">
-                <div className="flex flex-col md:flex-row items-center gap-8">
-                  <div className="md:w-5/12 md:text-right">
-                    <div className="bg-gradient-to-br from-indigo-50 via-pink-50 to-red-100 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-dashed border-indigo-400 ml-16 md:ml-0 animate-on-scroll animate-flipIn delay-2000">
-                      <h3 className="text-3xl font-bold mb-6 text-indigo-600 animate-on-scroll animate-zoomIn delay-2000">Coming Soon 🚀</h3>
-                      
-                      <div className="mb-6 pb-6 border-b-2 border-indigo-200 animate-on-scroll animate-fadeInScale delay-2000">
-                        <div className="flex justify-center mb-4">
-                          <img
-                            src="/Images/echo.png"
-                            alt="Echo Application"
-                            className="w-24 h-24 object-contain"
-                          />
-                        </div>
-                        <p className="text-gray-700 leading-relaxed">
-                          A privacy-focused chat application built to redefine secure communication, combining simplicity with trust.
-                        </p>
-                      </div>
-                      
-                      <div className="animate-on-scroll animate-fadeInScale delay-2000">
-                        <h4 className="text-2xl font-semibold mb-3 text-pink-700 flex items-center gap-2">
-                          <span>🛵</span> On-Demand Delivery Platform
-                        </h4>
-                        <p className="text-gray-700 leading-relaxed">
-                          A scalable app inspired by Swiggy, designed to connect users with local services efficiently.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex md:w-2/12 justify-center absolute left-0 md:static">
-                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white z-10 animate-on-scroll animate-rotateIn delay-2000">
-                      <span className="text-3xl">✨</span>
-                    </div>
-                  </div>
-                  <div className="md:w-5/12"></div>
                 </div>
               </div>
             </div>
