@@ -1,31 +1,30 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { 
-  getFirestore, 
-  collection, 
-  getDocs, 
-  addDoc, 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  orderBy, 
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
   serverTimestamp,
-  runTransaction,
-  getDoc
+  runTransaction
 } from 'firebase/firestore';
-import { 
-  getStorage, 
-  ref, 
-  uploadBytes, 
-  getDownloadURL, 
-  deleteObject 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
 } from 'firebase/storage';
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  signOut, 
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
   onAuthStateChanged,
-  User 
+  User
 } from 'firebase/auth';
 import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 
@@ -46,7 +45,7 @@ export const storage = getStorage(app);
 export const auth = getAuth(app);
 
 // Auth Helpers
-export async function loginAdminWithEmail(email: string, password: string):Promise<{ user: User | null; error: Error | null }> {
+export async function loginAdminWithEmail(email: string, password: string): Promise<{ user: User | null; error: Error | null }> {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
     return { user: userCredential.user, error: null };
@@ -358,7 +357,7 @@ export async function uploadResumeFile(file: File, applicationId: string): Promi
     const fileExt = file.name.split('.').pop();
     const fileName = `resumes/${applicationId}_${Date.now()}.${fileExt}`;
     const storageRef = ref(storage, fileName);
-    
+
     await uploadBytes(storageRef, file);
     const downloadUrl = await getDownloadURL(storageRef);
     return downloadUrl;
