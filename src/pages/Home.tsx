@@ -804,11 +804,15 @@ const Home: React.FC = () => {
                 </div>
                 <div className="flex flex-col items-center">
                   <p className="text-xs text-gray-700 mb-2 text-center bg-blue-100 px-3 py-1 rounded-full">Double Tap to Visit</p>
-                  <img
-                    src={client.logo}
-                    alt={client.name}
-                    className="w-full h-20 object-contain mb-4"
-                  />
+                  <div className="w-full h-24 flex items-center justify-center mb-3">
+                    <img
+                      src={client.logo}
+                      alt={client.name}
+                      className={`max-h-full max-w-full object-contain ${
+                        client.name === 'KONGUMANN' ? 'scale-140' : ''
+                      }`}
+                    />
+                  </div>
                   <h3 className="text-xs md:text-base font-semibold text-gray-700 text-center">
                     {client.name}
                   </h3>

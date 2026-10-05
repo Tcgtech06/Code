@@ -66,7 +66,14 @@ const ClientCard: React.FC<{ client: ClientItem; index: number; visible: boolean
       <div className="p-6 flex flex-col items-center text-center relative z-10">
         <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-gray-50 flex items-center justify-center mb-5 p-3
           group-hover:scale-110 group-hover:shadow-lg transition-all duration-500 border border-gray-100">
-          <img src={client.logo} alt={client.name} className="max-w-full max-h-full object-contain" loading="lazy" />
+          <img
+            src={client.logo}
+            alt={client.name}
+            className={`max-w-full max-h-full object-contain ${
+              client.name.toLowerCase().includes('kongumann') ? 'scale-125' : ''
+            }`}
+            loading="lazy"
+          />
         </div>
         <h3 className="text-base md:text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">{client.name}</h3>
         <p className="text-xs md:text-sm text-gray-500 leading-relaxed mb-4">{client.description}</p>
