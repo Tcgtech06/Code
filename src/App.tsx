@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import SnowEffect from './components/SnowEffect';
@@ -26,8 +26,7 @@ import Portfolio from './pages/Portfolio';
 
 function AppContent() {
   const { showSeason, seasonType } = useSnowEffect();
-  const location = useLocation();
-  
+
   // const showLuna = !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/portfolio');
 
   return (

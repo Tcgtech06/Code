@@ -18,6 +18,7 @@ const webDevClients: ClientItem[] = [
   { name: 'Manjunath Enterprises', logo: '/Images/manjunath.png', url: 'https://manjunathenterprises.in/', description: 'Comprehensive business and enterprise solutions.' },
   { name: 'Metro Fire Safe', logo: '/Images/metrosafe.png', url: 'https://metrosafe.in/', description: 'Fire safety equipment and solutions.' },
   { name: 'Trek India', logo: '/Images/trekindia.png', url: 'https://trekindia.co', description: 'Adventure trekking and outdoor experiences.' },
+  { name: 'Kongumann', logo: '/Images/kongumann.png', url: 'https://kongumann.com', description: 'Traditional and pure natural food products.' },
 ];
 
 const digitalMarketingClients: ClientItem[] = [

@@ -12,7 +12,8 @@ import {
   Star,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ExternalLink
 } from 'lucide-react';
 
 interface Client {
@@ -425,6 +426,16 @@ const Home: React.FC = () => {
       rating: 5,
       author: "Founder, JAIGOTEX",
       website: "https://jaigotex.com/"
+    },
+    {
+      id: 10,
+      name: "KONGUMANN",
+      logo: "/Images/kongumann.png",
+      originalLogo: "/Images/kongumann.png",
+      review: "TCG TECH delivered an exceptional and user-friendly digital platform for Kongumann, boosting our customer engagement and online presence.",
+      rating: 5,
+      author: "Founder, KONGUMANN",
+      website: "https://kongumann.com"
     }
   ];
 
@@ -832,6 +843,16 @@ const Home: React.FC = () => {
                   <p className="text-gray-600 font-medium text-sm">
                     — {selectedStory.author}
                   </p>
+                  {selectedStory.website && (
+                    <a
+                      href={selectedStory.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center mt-3 text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      Visit Website <ExternalLink className="ml-1 h-4 w-4" />
+                    </a>
+                  )}
                 </div>
                 <button 
                   onClick={handleCloseReview}
