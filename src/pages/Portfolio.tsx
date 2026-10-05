@@ -10,15 +10,16 @@ interface ClientItem {
 }
 
 const webDevClients: ClientItem[] = [
-  { name: 'Adhirasam', logo: '/Images/adhirasam.png', url: 'https://adhirasam.in', description: 'Traditional sweets & snacks delivered to your doorstep.' },
-  { name: 'Pugazh Overseas', logo: '/Images/pugazh.png', url: 'https://pugazhoverseas.in/', description: 'Global export and import solutions.' },
-  { name: 'Mali Enterprises', logo: '/Images/mali.png', url: 'https://malienterprises.in', description: 'Industrial and engineering services.' },
-  { name: 'Knitinfo', logo: '/Images/knitinfo.png', url: 'https://knitinfo.in', description: 'Textile industry insights and digital solutions.' },
-  { name: 'Kaumara Dental', logo: '/Images/kaumara.jpeg', url: 'https://kaumaradental.com', description: 'Advanced dental care and healthcare services.' },
-  { name: 'Manjunath Enterprises', logo: '/Images/manjunath.png', url: 'https://manjunathenterprises.in/', description: 'Comprehensive business and enterprise solutions.' },
-  { name: 'Metro Fire Safe', logo: '/Images/metrosafe.png', url: 'https://metrosafe.in/', description: 'Fire safety equipment and solutions.' },
-  { name: 'Trek India', logo: '/Images/trekindia.png', url: 'https://trekindia.co', description: 'Adventure trekking and outdoor experiences.' },
-  { name: 'Kongumann', logo: '/Images/kongumann.png', url: 'https://kongumann.com', description: 'Traditional and pure natural food products.' },
+  { name: 'Kongumann', logo: '/Images/kongumann.png', url: 'https://kongumann.com', description: 'Monthly print & digital magazine celebrating Kongu region achievers & heritage.' },
+  { name: 'Adhirasam', logo: '/Images/adhirasam.png', url: 'https://adhirasam.in', description: 'Traditional homemade sweets & native Tamil delicacies.' },
+  { name: 'Mali Enterprises', logo: '/Images/mali.png', url: 'https://malienterprises.in', description: 'Agricultural machinery, farming equipment & innovative agro solutions.' },
+  { name: 'Manjunath Enterprises', logo: '/Images/manjunath.png', url: 'https://manjunathenterprises.in/', description: 'Advanced agricultural machinery, power weeders & farming equipment.' },
+  { name: 'Metro Fire Safe', logo: '/Images/metrosafe.png', url: 'https://metrosafe.in/', description: 'Certified fire safety equipment, suppression systems & industrial safety.' },
+  { name: 'Kaumara Dental', logo: '/Images/kaumara.jpeg', url: 'https://kaumaradental.com', description: 'Specialized pediatric dentistry & advanced dental healthcare services.' },
+  { name: 'Trek India', logo: '/Images/trekindia.png', url: 'https://trekindia.co', description: 'Adventure trekking expeditions, camping tours & outdoor experiences.' },
+  { name: 'Knitinfo', logo: '/Images/knitinfo.png', url: 'https://knitinfo.in', description: 'B2B textile industry directory, knitwear sourcing & manufacturer network.' },
+  { name: 'Pugazh Overseas', logo: '/Images/pugazh.png', url: 'https://pugazhoverseas.in/', description: 'Global export-import portal for agricultural commodities & coir products.' },
+  { name: 'Jaigotex', logo: '/Images/jaigotex.png', url: 'https://jaigotex.com/', description: 'Premium textile manufacturing, specialized yarn & garment solutions.' },
 ];
 
 const digitalMarketingClients: ClientItem[] = [

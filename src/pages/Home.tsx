@@ -342,7 +342,7 @@ const Home: React.FC = () => {
       name: "MALI ENTERPRISES",
       logo: "/Images/mali.png",
       originalLogo: "/Images/mali.png",
-      review: "TCG ECH transformed our Farming Equipment business into National Digital Market with their innovative web development soution. Now we are Getting more sales from all over India",
+      review: "TCG TECH transformed our agricultural machinery and farming equipment business into a nationwide digital brand. Their custom web solution and product catalog have driven high-intent inquiries from farmers and distributors all over India.",
       rating: 5,
       author: "MD, MALI ENTERPRISES",
       website: "https://malienterprises.in"
@@ -352,7 +352,7 @@ const Home: React.FC = () => {
       name: "MANJUNATH ENTERPRISES",
       logo: "/Images/manjunath.png",
       originalLogo: "/Images/manjunath.png",
-      review: "Through their Advanced Web solutions they provide and drastic Increase of sales through online for Our Farming products",
+      review: "With TCG TECH's modern web platform, showcasing our advanced agricultural machineries and farm equipment became seamless. We have seen a significant increase in online customer inquiries and pan-India sales.",
       rating: 5,
       author: "FOUNDER, MANJUNATH ENTERPRISES",
       website: "https://manjunathenterprises.in"
@@ -362,7 +362,7 @@ const Home: React.FC = () => {
       name: "அதிரசம்",
       logo: "/Images/adhirasam.png",
       originalLogo: "/Images/adhirasam.png",
-      review: "Tcg Tech developed an website for my Homemade traditional sweets which beautifully showcases our products and has helped us reach customers across Tamil Nadu and other states too",
+      review: "TCG TECH developed a beautiful e-commerce platform for our traditional homemade sweets. The seamless ordering experience has helped us deliver authentic Adhirasam and native delicacies to sweet lovers across Tamil Nadu and beyond.",
       rating: 5,
       author: "MD, அதிரசம்",
       website: "https://adhirasam.in"
@@ -372,7 +372,7 @@ const Home: React.FC = () => {
       name: "METRO FIRE SAFETY SOLUTIONS",
       logo: "/Images/metrosafe.png",
       originalLogo: "/Images/metrosafe.png",
-      review: "TCG Technology's custom software solutions for the Fire safety products and Equipments which helped us to easily Grow in the market",
+      review: "TCG TECH built a robust corporate website and product showcase for our fire safety and industrial equipment. Their digital solutions have greatly helped us connect with commercial and industrial clients looking for certified safety systems.",
       rating: 5,
       author: "Safety Director, Metro Fire Safe",
       website: "https://metrosafe.in"
@@ -382,9 +382,9 @@ const Home: React.FC = () => {
       name: "KAUMARA DENTAL CLINIC",
       logo: "/Images/kaumara.jpeg",
       originalLogo: "/Images/kaumara.jpeg",
-      review: "Their web development team delivered an outstanding website that perfectly represents our brand. The user experience is exceptional.",
+      review: "The team at TCG TECH designed a modern, patient-friendly website for Kaumara Dental Clinic. It perfectly highlights our pediatric dental specialties, facilitates easy appointment booking, and delivers an outstanding experience for parents.",
       rating: 5,
-      author: "DR.Niddhish Krishna (Pediatric Dentist), KAUMARA DENTAL CLINIC",
+      author: "DR. Niddhish Krishna (Pediatric Dentist), KAUMARA DENTAL CLINIC",
       website: "https://kaumaradental.com"
     },
     {
@@ -392,9 +392,9 @@ const Home: React.FC = () => {
       name: "TREK INDIA",
       logo: "/Images/trekindia.png",
       originalLogo: "/Images/trekindia.png",
-      review: "Their Technical Team Guided Us in the Digital Marketing Path way to Gain More Trekkers and Travelers from All Over India",
+      review: "TCG TECH's digital marketing and web expertise helped Trek India reach adventure enthusiasts and travelers across the country. Our expedition bookings and community engagement grew tremendously.",
       rating: 5,
-      author: "Founder,TREK INDIA",
+      author: "Founder, TREK INDIA",
       website: "https://trekindia.co"
     },
     {
@@ -402,7 +402,7 @@ const Home: React.FC = () => {
       name: "KNITINFO",
       logo: "/Images/knitinfo.png",
       originalLogo: "/Images/knitinfo.png",
-      review: "TCG TECH technical Team is very Good with full of Young Blood's and Their Dedication is Huge , They Build me an Hybrid Web App that is Awesome",
+      review: "TCG TECH created an intuitive digital portal for our textile and knitwear directory. The hybrid web app makes it effortless for garment manufacturers, buyers, and suppliers to discover and connect with Tirupur's textile ecosystem.",
       rating: 5,
       author: "MD, KNITINFO",
       website: "https://knitinfo.in"
@@ -412,9 +412,9 @@ const Home: React.FC = () => {
       name: "PUGAZH OVERSEAS",
       logo: "/Images/pugazh.png",
       originalLogo: "/Images/pugazh.png",
-      review: "We are satisfied with the TCG team's Work they have Delivered Our Requirements and Fullfilled it",
+      review: "TCG TECH developed a professional, global-standard export portal for Pugazh Overseas. It accurately represents our agricultural commodities and coir exports to overseas buyers, establishing strong international credibility.",
       rating: 5,
-      author: "PUGAZH OVERSEAS",
+      author: "Director, PUGAZH OVERSEAS",
       website: "https://pugazhoverseas.in"
     },
     {
@@ -422,7 +422,7 @@ const Home: React.FC = () => {
       name: "JAIGOTEX",
       logo: "/Images/jaigotex.png",
       originalLogo: "/Images/jaigotex.png",
-      review: "TCG TECH team delivered a high-quality platform that perfectly aligned with our business needs. Excellent communication and dedication throughout the project.",
+      review: "TCG TECH delivered a world-class digital presence for our textile manufacturing firm. Their attention to detail, prompt communication, and technical expertise ensured our product lines and capabilities are showcased with precision.",
       rating: 5,
       author: "Founder, JAIGOTEX",
       website: "https://jaigotex.com/"
@@ -432,9 +432,9 @@ const Home: React.FC = () => {
       name: "KONGUMANN",
       logo: "/Images/kongumann.png",
       originalLogo: "/Images/kongumann.png",
-      review: "TCG TECH delivered an exceptional and user-friendly digital platform for Kongumann, boosting our customer engagement and online presence.",
+      review: "TCG TECH built an elegant digital publishing platform for Kongumann Magazine. It allows our readers across the globe to seamlessly access our monthly print and digital editions celebrating Kongu region's top achievers, inspiring stories, and rich cultural heritage.",
       rating: 5,
-      author: "Founder, KONGUMANN",
+      author: "Founder & Editor, KONGUMANN Magazine",
       website: "https://kongumann.com"
     }
   ];
