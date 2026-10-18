@@ -35,6 +35,11 @@ export function AdminPage() {
 
   useEffect(() => {
     if (user) {
+      if (user.email !== 'vilvah@admin.com') {
+        navigate('/', { replace: true });
+        return;
+      }
+
       loadBookings();
 
       const channel = supabase
@@ -52,7 +57,7 @@ export function AdminPage() {
         supabase.removeChannel(channel);
       };
     }
-  }, [user]);
+  }, [user, navigate]);
 
   const loadBookings = async () => {
     try {
