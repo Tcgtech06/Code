@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
-const isPongalSeason = (date: Date) => {
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  return month === 1 && day >= 10 && day <= 18;
-};
+import { isPongalSeason } from '../utils/festivalUtils';
 
 const CometAnimation: React.FC = () => {
   const [collision, setCollision] = useState<{ x: number; y: number } | null>(null);

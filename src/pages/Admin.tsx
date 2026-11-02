@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Lottie from 'lottie-react';
+import { isMattuPongal } from '../utils/festivalUtils';
 import oxAnimation from '../../ox.json';
 import { 
   fetchJobPostings, 
@@ -68,7 +69,7 @@ export default function Admin() {
   const [selectedApplication, setSelectedApplication] = useState<JobApplication | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentDay, setCurrentDay] = useState<number>(13);
+  const [isMattuPongalDay, setIsMattuPongalDay] = useState<boolean>(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStatusChange((user) => {
@@ -81,9 +82,7 @@ export default function Admin() {
       }
     });
 
-    const now = new Date();
-    const date = now.getDate();
-    setCurrentDay(date);
+    setIsMattuPongalDay(isMattuPongal(new Date()));
 
     return () => unsubscribe();
   }, []);
@@ -508,7 +507,7 @@ Application Details:
   return (
     <div className="min-h-screen bg-gray-50 pt-16 relative">
       {/* Conditional Ox Animation - Only on Mattu Pongal (January 16th) */}
-      {currentDay === 16 && (
+      {isMattuPongalDay && (
         <>
           <style>{`
             @keyframes slideHorizontal {

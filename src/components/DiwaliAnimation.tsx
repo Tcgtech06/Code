@@ -2,41 +2,20 @@ import React, { useState, useEffect } from 'react';
 import Lottie from 'lottie-react';
 import diwaliBombAnimation from '../../diwali-bomb.json';
 import fireworksAnimation from '../../Fireworks.json';
+import { isDiwaliSeason } from '../utils/festivalUtils';
 
 const DiwaliAnimation: React.FC = () => {
-  const [showAnimation, setShowAnimation] = useState<boolean>(false);
+  const [showAnimation, setShowAnimation] = useState<boolean>(() => isDiwaliSeason());
 
   useEffect(() => {
     const checkDiwaliSeason = () => {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth(); // 0-indexed
-      const date = now.getDate();
-      
-      // TEMPORARY: Show from Feb 6 to Feb 8, 2026 for testing
-      if (year === 2026 && month === 1 && date >= 6 && date <= 8) {
-        setShowAnimation(true);
-        return;
-      }
-      
-      // Original Diwali dates: October 15-21
-      // Diwali 2025 is on October 20
-      // Show animation from 5 days before (Oct 15) to 1 day after (Oct 21)
-      const startDate = new Date(year, 9, 15); // October 15
-      const endDate = new Date(year, 9, 21); // October 21
-      
-      // Check if current date is within the range
-      if (now >= startDate && now <= endDate) {
-        setShowAnimation(true);
-      } else {
-        setShowAnimation(false);
-      }
+      setShowAnimation(isDiwaliSeason());
     };
 
     checkDiwaliSeason();
     
-    // Check every hour in case the date changes
-    const interval = setInterval(checkDiwaliSeason, 3600000);
+    // Check every minute in case the date changes
+    const interval = setInterval(checkDiwaliSeason, 60000);
     
     return () => clearInterval(interval);
   }, []);
