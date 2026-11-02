@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Lottie from 'lottie-react';
+import Lottie from '../components/SafeLottie';
 import { isMattuPongal } from '../utils/festivalUtils';
 import oxAnimation from '../../ox.json';
 import { 

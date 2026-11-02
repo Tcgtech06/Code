@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Lottie from 'lottie-react';
+import Lottie from './SafeLottie';
 import diwaliBombAnimation from '../../diwali-bomb.json';
 import fireworksAnimation from '../../Fireworks.json';
 import { isDiwaliSeason } from '../utils/festivalUtils';

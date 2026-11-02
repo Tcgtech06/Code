@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Lottie from 'lottie-react';
+import Lottie from './SafeLottie';
 import oxAnimation from '../../ox.json';
 
 const PongalAnimation: React.FC = () => {

@@ -87,3 +87,4 @@ export function getActiveFestivalSeason(now: Date = new Date()): SeasonType {
   if (isPongalSeason(now)) return 'pongal';
   return null;
 }
+

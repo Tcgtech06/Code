@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import useSnowEffect from '../hooks/useSnowEffect';
 import SunAnimation from './SunAnimation';
-import Lottie from 'lottie-react';
+import Lottie from './SafeLottie';
 import diwaliAnimation from '../../Happy diwali animated graphic.json';
 
 export default function Navbar() {
