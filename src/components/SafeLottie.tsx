@@ -23,3 +23,4 @@ const Lottie: React.FC<any> = (props) => {
 };
 
 export default Lottie;
+

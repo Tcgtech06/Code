@@ -7,16 +7,33 @@ import diwaliAnimation from '../../Happy diwali animated graphic.json';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
+  const visibleRef = useRef(true);
+  const prevScrollPosRef = useRef(0);
   const navRef = useRef<HTMLDivElement>(null);
   const { showSeason, seasonType } = useSnowEffect();
 
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+
+    const updateScroll = () => {
       const currentScrollPos = window.scrollY;
-      setVisible(prevScrollPos > currentScrollPos || currentScrollPos < 10);
-      setPrevScrollPos(currentScrollPos);
+      const shouldBeVisible = prevScrollPosRef.current > currentScrollPos || currentScrollPos < 10;
+      
+      if (visibleRef.current !== shouldBeVisible) {
+        visibleRef.current = shouldBeVisible;
+        setVisible(shouldBeVisible);
+      }
+      
+      prevScrollPosRef.current = currentScrollPos;
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateScroll);
+        ticking = true;
+      }
     };
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -25,14 +42,14 @@ export default function Navbar() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     document.addEventListener('mousedown', handleClickOutside);
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [prevScrollPos]);
+  }, []);
 
   const menuItems = [
     { path: '/', label: 'Home' },

@@ -52,8 +52,14 @@ const SnowEffect = () => {
 
     window.addEventListener('resize', handleResize);
 
-    // Animation loop for collision detection
-    const animate = () => {
+    let lastCheck = 0;
+    // Throttled animation loop for collision detection (GPU-friendly)
+    const animate = (timestamp: number) => {
+      if (timestamp - lastCheck < 300) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      lastCheck = timestamp;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // Get all white background elements except the header
@@ -102,7 +108,7 @@ const SnowEffect = () => {
       animationRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    animationRef.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -140,10 +146,10 @@ const SnowEffect = () => {
           {`
             @keyframes fall {
               0% {
-                transform: translateY(-10px) rotate(0deg);
+                transform: translate3d(0, -10px, 0) rotate(0deg);
               }
               100% {
-                transform: translateY(100vh) rotate(360deg);
+                transform: translate3d(0, 100vh, 0) rotate(360deg);
               }
             }
           `}
