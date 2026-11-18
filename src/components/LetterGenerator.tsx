@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Download, FileText, Briefcase, AlertCircle, FileCheck } from 'lucide-react';
+import { Download, FileText, Briefcase, AlertCircle, FileCheck, Upload, PenTool, Type, Trash2, RotateCcw, Check, Mail, Phone } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 export type LetterType = 'appointment' | 'offer' | 'relieving' | 'termination';
@@ -41,6 +41,14 @@ export default function LetterGenerator() {
   const [showPreview, setShowPreview] = useState(false);
   const letterRef = useRef<HTMLDivElement>(null);
   const [base64Logo, setBase64Logo] = useState<string>('');
+
+  // Digital Signature state
+  const [signatureImage, setSignatureImage] = useState<string>('');
+  const [signatureMode, setSignatureMode] = useState<'upload' | 'draw' | 'type'>('upload');
+  const [typedSigName, setTypedSigName] = useState<string>('');
+  const [typedSigFontIndex, setTypedSigFontIndex] = useState<number>(0);
+  const sigCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const isDrawingRef = useRef<boolean>(false);
 
   // Load and pre-optimize company logo for jsPDF
   const getOptimizedLogoBase64 = async (): Promise<string | null> => {
@@ -132,7 +140,113 @@ export default function LetterGenerator() {
   const getSalaryDisplay = () => {
     if (letterData.salaryType === 'project') return 'As per Project';
     if (letterData.salaryType === 'task') return 'As per Task';
+    if (letterData.employmentType === 'Internship') {
+      return letterData.salary || '[Stipend]';
+    }
     return letterData.salary || '[Salary]';
+  };
+
+  // Digital Signature helpers
+  const getCanvasCoordinates = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = sigCanvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  };
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const canvas = sigCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    isDrawingRef.current = true;
+    const { x, y } = getCanvasCoordinates(e);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawingRef.current) return;
+    e.preventDefault();
+    const canvas = sigCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const { x, y } = getCanvasCoordinates(e);
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    if (isDrawingRef.current) {
+      isDrawingRef.current = false;
+      const canvas = sigCanvasRef.current;
+      if (canvas) {
+        setSignatureImage(canvas.toDataURL('image/png'));
+      }
+    }
+  };
+
+  const clearCanvas = () => {
+    const canvas = sigCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const handleSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (reader.result) {
+        setSignatureImage(reader.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const applyTypedSignature = (text: string, fontIdx: number) => {
+    const name = text.trim() || letterData.authorizedSignatoryName.trim();
+    if (!name) {
+      setSignatureImage('');
+      return;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = 400;
+    canvas.height = 120;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const fonts = [
+      "italic 38px 'Brush Script MT', cursive, sans-serif",
+      "italic 32px 'Segoe Script', 'Great Vibes', cursive",
+      "italic 30px 'Lucida Handwriting', 'Snell Roundhand', cursive"
+    ];
+    ctx.font = fonts[fontIdx] || fonts[0];
+    ctx.fillStyle = '#0f172a';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    ctx.fillText(name, canvas.width / 2, canvas.height / 2);
+    setSignatureImage(canvas.toDataURL('image/png'));
   };
   
   const getWorkTypeDisplay = () => {
@@ -229,8 +343,8 @@ export default function LetterGenerator() {
       pdf.setFontSize(9);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(100, 116, 139);
-      pdf.text('Email: contact@tcgtech.in', pageWidth - margin, 36, { align: 'right' });
-      pdf.text('Phone: 8072099570', pageWidth - margin, 41, { align: 'right' });
+      pdf.text(`Email: ${letterData.contactEmail || 'contact@tcgtech.in'}`, pageWidth - margin, 36, { align: 'right' });
+      pdf.text(`Phone: ${letterData.contactPhone || '8072099570'}`, pageWidth - margin, 41, { align: 'right' });
       pdf.setTextColor(0, 0, 0);
 
       // Separator line
@@ -291,9 +405,10 @@ export default function LetterGenerator() {
       if (letterData.employmentType && letterData.employmentType.trim()) {
         employmentTerms.push(`• Employment Type: ${getDisplayEmploymentType()}`);
       }
+      const isIntern = letterData.employmentType === 'Internship';
       const salaryDisplay = getSalaryDisplay();
-      if (salaryDisplay && salaryDisplay !== '[Salary]') {
-        employmentTerms.push(`• Annual Salary: ${salaryDisplay}`);
+      if (salaryDisplay && salaryDisplay !== '[Salary]' && salaryDisplay !== '[Stipend]') {
+        employmentTerms.push(`• ${isIntern ? 'Stipend' : 'Annual Salary'}: ${salaryDisplay}`);
       }
       if (letterData.startDate && letterData.startDate.trim()) {
         employmentTerms.push(`• Start Date: ${letterData.startDate}`);
@@ -330,14 +445,33 @@ export default function LetterGenerator() {
       pdf.text(acceptanceText, margin, yPosition);
       yPosition += 16;
       
-      // Ensure signature block fits cleanly on Page 1 (needs ~30mm)
-      if (yPosition + 30 > 275) {
+      // Ensure signature block fits cleanly on Page 1 (needs ~35mm)
+      if (yPosition + 35 > 275) {
         pdf.addPage();
         yPosition = 30;
       }
       
       const signatoryName = letterData.authorizedSignatoryName.trim() || 'Authorized Signatory';
       const signatoryDesignation = getAuthorizedSignatoryDesignation();
+
+      // Right side: Authorized Signatory
+      const rightX = pageWidth - margin - 65;
+
+      // Draw digital signature if provided
+      if (signatureImage) {
+        try {
+          pdf.addImage(signatureImage, 'PNG', rightX + 2, yPosition - 14, 38, 13);
+        } catch (sigErr) {
+          console.warn('Could not add signature image to PDF:', sigErr);
+        }
+      }
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('_________________________________', rightX, yPosition);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(signatoryName, rightX, yPosition + 5);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${signatoryDesignation} / Authorized Signatory`, rightX, yPosition + 10);
 
       // Left side: Candidate Signature
       pdf.setFont('helvetica', 'normal');
@@ -346,17 +480,6 @@ export default function LetterGenerator() {
       pdf.text(letterData.candidateName.trim() || '[Candidate Name]', margin, yPosition + 5);
       pdf.setFont('helvetica', 'normal');
       pdf.text('Candidate Signature', margin, yPosition + 10);
-
-      // Right side: Authorized Signatory
-      const rightX = pageWidth - margin - 65;
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('For TCG TECH', rightX, yPosition - 5);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('_________________________________', rightX, yPosition);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(signatoryName, rightX, yPosition + 5);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(`${signatoryDesignation} / Authorized Signatory`, rightX, yPosition + 10);
       
       // Add Page 2: Rules and Regulations
       pdf.addPage();
@@ -494,8 +617,8 @@ export default function LetterGenerator() {
       pdf.setFontSize(9);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(100, 116, 139);
-      pdf.text('Email: contact@tcgtech.in', pageWidth - margin, 36, { align: 'right' });
-      pdf.text('Phone: 8072099570', pageWidth - margin, 41, { align: 'right' });
+      pdf.text(`Email: ${letterData.contactEmail || 'contact@tcgtech.in'}`, pageWidth - margin, 36, { align: 'right' });
+      pdf.text(`Phone: ${letterData.contactPhone || '8072099570'}`, pageWidth - margin, 41, { align: 'right' });
       pdf.setTextColor(0, 0, 0);
 
       // Separator line
@@ -575,9 +698,13 @@ export default function LetterGenerator() {
       // Signature
       pdf.text('Sincerely,', margin, yPosition);
       yPosition += 10;
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('For TCG TECH', margin, yPosition);
-      yPosition += 6;
+      if (signatureImage) {
+        try {
+          pdf.addImage(signatureImage, 'PNG', margin + 2, yPosition - 14, 38, 13);
+        } catch (sigErr) {
+          console.warn('Could not add signature image to PDF:', sigErr);
+        }
+      }
       pdf.setFont('helvetica', 'normal');
       pdf.text('_________________________', margin, yPosition);
       pdf.setFont('helvetica', 'bold');
@@ -615,8 +742,8 @@ export default function LetterGenerator() {
       pdf.setFontSize(9);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(100, 116, 139);
-      pdf.text('Email: contact@tcgtech.in', pageWidth - margin, 36, { align: 'right' });
-      pdf.text('Phone: 8072099570', pageWidth - margin, 41, { align: 'right' });
+      pdf.text(`Email: ${letterData.contactEmail || 'contact@tcgtech.in'}`, pageWidth - margin, 36, { align: 'right' });
+      pdf.text(`Phone: ${letterData.contactPhone || '8072099570'}`, pageWidth - margin, 41, { align: 'right' });
       pdf.setTextColor(0, 0, 0);
 
       // Separator line
@@ -704,9 +831,13 @@ export default function LetterGenerator() {
       // Signature
       pdf.text('Sincerely,', margin, yPosition);
       yPosition += 10;
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('For TCG TECH', margin, yPosition);
-      yPosition += 6;
+      if (signatureImage) {
+        try {
+          pdf.addImage(signatureImage, 'PNG', margin + 2, yPosition - 14, 38, 13);
+        } catch (sigErr) {
+          console.warn('Could not add signature image to PDF:', sigErr);
+        }
+      }
       pdf.setFont('helvetica', 'normal');
       pdf.text('_________________________', margin, yPosition);
       pdf.setFont('helvetica', 'bold');
@@ -730,6 +861,9 @@ export default function LetterGenerator() {
 
   const resetForm = (newType?: LetterType) => {
     const targetType = newType || letterType;
+    setSignatureImage('');
+    clearCanvas();
+    setTypedSigName('');
     setLetterData({
       type: targetType,
       companyName: 'TCG TECH',
@@ -949,29 +1083,55 @@ export default function LetterGenerator() {
                     placeholder="Enter department"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Contact Email</label>
+                  <input
+                    type="email"
+                    value={letterData.contactEmail}
+                    onChange={(e) => updateLetterData('contactEmail', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="contact@tcgtech.in"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Contact Phone</label>
+                  <input
+                    type="tel"
+                    value={letterData.contactPhone}
+                    onChange={(e) => updateLetterData('contactPhone', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="8072099570"
+                  />
+                </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Salary Type *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {letterData.employmentType === 'Internship' ? 'Stipend Type *' : 'Salary Type *'}
+                  </label>
                   <select
                     value={letterData.salaryType}
                     onChange={(e) => updateLetterData('salaryType', e.target.value as 'project' | 'task' | 'custom')}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
+                    <option value="custom">{letterData.employmentType === 'Internship' ? 'Fixed Stipend' : 'Custom / Fixed Salary'}</option>
                     <option value="project">As per Project</option>
                     <option value="task">As per Task</option>
-                    <option value="custom">Custom</option>
                   </select>
                 </div>
                 
                 {letterData.salaryType === 'custom' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Salary (Annual) *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {letterData.employmentType === 'Internship' ? 'Stipend (Monthly / Total) *' : 'Salary (Annual) *'}
+                    </label>
                     <input
                       type="text"
                       value={letterData.salary}
                       onChange={(e) => updateLetterData('salary', e.target.value)}
                       className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., ₹6,00,000 per annum"
+                      placeholder={letterData.employmentType === 'Internship' ? 'e.g., ₹10,000 per month' : 'e.g., ₹6,00,000 per annum'}
                       required
                     />
                   </div>
@@ -1151,6 +1311,197 @@ export default function LetterGenerator() {
                     />
                   </div>
                 )}
+
+                {/* Digital Signature Component for Authorized Signatory */}
+                <div className="md:col-span-2 bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                        <PenTool className="h-4 w-4 text-blue-600" />
+                        Digital Signature (Authorized Signatory)
+                      </h4>
+                      <p className="text-xs text-gray-500">
+                        Upload signature image, draw your signature, or type your name in cursive script
+                      </p>
+                    </div>
+                    {signatureImage && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSignatureImage('');
+                          clearCanvas();
+                        }}
+                        className="inline-flex items-center text-xs text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-1" />
+                        Remove Signature
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Signature Mode Tabs */}
+                  <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+                    <button
+                      type="button"
+                      onClick={() => setSignatureMode('upload')}
+                      className={`flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                        signatureMode === 'upload'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Upload className="h-3.5 w-3.5 mr-1.5" />
+                      Upload Image
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSignatureMode('draw')}
+                      className={`flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                        signatureMode === 'draw'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      <PenTool className="h-3.5 w-3.5 mr-1.5" />
+                      Draw Signature
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSignatureMode('type');
+                        const defaultName = typedSigName || letterData.authorizedSignatoryName;
+                        if (defaultName) {
+                          setTypedSigName(defaultName);
+                          applyTypedSignature(defaultName, typedSigFontIndex);
+                        }
+                      }}
+                      className={`flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                        signatureMode === 'type'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Type className="h-3.5 w-3.5 mr-1.5" />
+                      Type Name
+                    </button>
+                  </div>
+
+                  {/* Mode Content */}
+                  {signatureMode === 'upload' && (
+                    <div className="space-y-3">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-white hover:border-blue-400 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/png, image/jpeg, image/jpg, image/webp"
+                          onChange={handleSignatureUpload}
+                          className="hidden"
+                          id="sig-upload-input"
+                        />
+                        <label htmlFor="sig-upload-input" className="cursor-pointer flex flex-col items-center">
+                          <Upload className="h-8 w-8 text-gray-400 mb-1" />
+                          <span className="text-sm font-medium text-blue-600 hover:underline">Click to upload signature image</span>
+                          <span className="text-xs text-gray-400 mt-1">PNG, JPG, or WEBP (transparent background recommended)</span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {signatureMode === 'draw' && (
+                    <div className="space-y-3">
+                      <div className="border border-gray-300 rounded-lg bg-white overflow-hidden p-2">
+                        <div className="flex justify-between items-center mb-1 px-1">
+                          <span className="text-xs text-gray-500">Sign in the box below using mouse or touchpad:</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              clearCanvas();
+                              setSignatureImage('');
+                            }}
+                            className="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1 font-medium"
+                          >
+                            <RotateCcw className="h-3 w-3" /> Clear
+                          </button>
+                        </div>
+                        <canvas
+                          ref={sigCanvasRef}
+                          width={400}
+                          height={120}
+                          onMouseDown={startDrawing}
+                          onMouseMove={draw}
+                          onMouseUp={stopDrawing}
+                          onMouseLeave={stopDrawing}
+                          onTouchStart={startDrawing}
+                          onTouchMove={draw}
+                          onTouchEnd={stopDrawing}
+                          className="w-full h-28 border border-dashed border-gray-200 rounded cursor-crosshair bg-slate-50 touch-none"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {signatureMode === 'type' && (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Name for Signature</label>
+                          <input
+                            type="text"
+                            value={typedSigName}
+                            onChange={(e) => {
+                              setTypedSigName(e.target.value);
+                              applyTypedSignature(e.target.value, typedSigFontIndex);
+                            }}
+                            placeholder="e.g., Mohankumar"
+                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Font Style</label>
+                          <select
+                            value={typedSigFontIndex}
+                            onChange={(e) => {
+                              const idx = Number(e.target.value);
+                              setTypedSigFontIndex(idx);
+                              applyTypedSignature(typedSigName, idx);
+                            }}
+                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value={0}>Style 1 (Brush Cursive)</option>
+                            <option value={1}>Style 2 (Calligraphy Script)</option>
+                            <option value={2}>Style 3 (Handwriting)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Active Signature Preview */}
+                  {signatureImage && (
+                    <div className="bg-white border border-green-200 rounded-lg p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-12 w-28 bg-gray-50 border border-gray-200 rounded flex items-center justify-center p-1 overflow-hidden">
+                          <img src={signatureImage} alt="Active Signature" className="max-h-full max-w-full object-contain" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-green-700 flex items-center gap-1">
+                            <Check className="h-3.5 w-3.5" /> Signature Ready
+                          </p>
+                          <p className="text-[11px] text-gray-500">Will appear directly above the Authorized Signatory line</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSignatureImage('');
+                          clearCanvas();
+                        }}
+                        className="text-xs text-red-600 hover:text-red-700 font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : letterType === 'relieving' ? (
               <>
@@ -1430,8 +1781,8 @@ export default function LetterGenerator() {
                     </div>
                     <div className="text-right">
                       <h1 className="text-2xl font-bold text-gray-800 mb-2">TCG TECH</h1>
-                      <p className="text-gray-600 text-sm">Email: contact@tcgtech.in</p>
-                      <p className="text-gray-600 text-sm">Phone: 8072099570</p>
+                      <p className="text-gray-600 text-sm">Email: {letterData.contactEmail || 'contact@tcgtech.in'}</p>
+                      <p className="text-gray-600 text-sm">Phone: {letterData.contactPhone || '8072099570'}</p>
                     </div>
                   </div>
                 </div>
@@ -1472,8 +1823,8 @@ export default function LetterGenerator() {
                     {letterData.employmentType && letterData.employmentType.trim() && (
                       <p>• Employment Type: {getDisplayEmploymentType()}</p>
                     )}
-                    {getSalaryDisplay() !== '[Salary]' && (
-                      <p>• Annual Salary: {getSalaryDisplay()}</p>
+                    {getSalaryDisplay() !== '[Salary]' && getSalaryDisplay() !== '[Stipend]' && (
+                      <p>• {letterData.employmentType === 'Internship' ? 'Stipend' : 'Annual Salary'}: {getSalaryDisplay()}</p>
                     )}
                     {letterData.startDate && letterData.startDate.trim() && (
                       <p>• Start Date: {letterData.startDate}</p>
@@ -1507,7 +1858,17 @@ export default function LetterGenerator() {
                       <p className="text-sm text-gray-600">Candidate Signature</p>
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-gray-800 mb-1">For TCG TECH</p>
+                      {signatureImage ? (
+                        <div className="h-16 flex items-end mb-1">
+                          <img
+                            src={signatureImage}
+                            alt="Authorized Signature"
+                            className="max-h-14 max-w-[190px] object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-12"></div>
+                      )}
                       <div className="w-56 border-b border-gray-400 mb-2"></div>
                       <p className="text-sm font-semibold text-gray-800">{letterData.authorizedSignatoryName || '[Authorized Signatory Name]'}</p>
                       <p className="text-sm text-gray-600">{getAuthorizedSignatoryDesignation()} / Authorized Signatory</p>
@@ -1606,8 +1967,8 @@ export default function LetterGenerator() {
                     </div>
                     <div className="text-right">
                       <h1 className="text-2xl font-bold text-gray-800 mb-2">TCG TECH</h1>
-                      <p className="text-gray-600 text-sm">Email: contact@tcgtech.in</p>
-                      <p className="text-gray-600 text-sm">Phone: 8072099570</p>
+                      <p className="text-gray-600 text-sm">Email: {letterData.contactEmail || 'contact@tcgtech.in'}</p>
+                      <p className="text-gray-600 text-sm">Phone: {letterData.contactPhone || '8072099570'}</p>
                     </div>
                   </div>
                 </div>
@@ -1658,9 +2019,20 @@ export default function LetterGenerator() {
                   
                   <div className="mt-12">
                     <p>Sincerely,</p>
-                    <p className="mt-4">_________________________</p>
-                    <p><strong>{letterData.contactPerson}</strong></p>
-                    <p>HR Manager</p>
+                    {signatureImage ? (
+                      <div className="h-16 flex items-end mb-1">
+                        <img
+                          src={signatureImage}
+                          alt="Authorized Signature"
+                          className="max-h-14 max-w-[190px] object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-10"></div>
+                    )}
+                    <p className="mt-1">_________________________</p>
+                    <p><strong>{letterData.authorizedSignatoryName.trim() || letterData.contactPerson}</strong></p>
+                    <p>{getAuthorizedSignatoryDesignation()} / HR Manager</p>
                     <p>TCG TECH</p>
                   </div>
                 </div>
@@ -1682,8 +2054,8 @@ export default function LetterGenerator() {
                     </div>
                     <div className="text-right">
                       <h1 className="text-2xl font-bold text-gray-800 mb-2">TCG TECH</h1>
-                      <p className="text-gray-600 text-sm">Email: contact@tcgtech.in</p>
-                      <p className="text-gray-600 text-sm">Phone: 8072099570</p>
+                      <p className="text-gray-600 text-sm">Email: {letterData.contactEmail || 'contact@tcgtech.in'}</p>
+                      <p className="text-gray-600 text-sm">Phone: {letterData.contactPhone || '8072099570'}</p>
                     </div>
                   </div>
                 </div>
@@ -1740,9 +2112,20 @@ export default function LetterGenerator() {
                   
                   <div className="mt-12">
                     <p>Sincerely,</p>
-                    <p className="mt-4">_________________________</p>
-                    <p><strong>{letterData.contactPerson}</strong></p>
-                    <p>HR Manager</p>
+                    {signatureImage ? (
+                      <div className="h-16 flex items-end mb-1">
+                        <img
+                          src={signatureImage}
+                          alt="Authorized Signature"
+                          className="max-h-14 max-w-[190px] object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-10"></div>
+                    )}
+                    <p className="mt-1">_________________________</p>
+                    <p><strong>{letterData.authorizedSignatoryName.trim() || letterData.contactPerson}</strong></p>
+                    <p>{getAuthorizedSignatoryDesignation()} / HR Manager</p>
                     <p>TCG TECH</p>
                   </div>
                 </div>
