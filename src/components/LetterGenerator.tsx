@@ -1,9 +1,11 @@
-import React, { useState, useRef } from 'react';
-import { Download, FileText, Briefcase, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Download, FileText, Briefcase, AlertCircle, FileCheck } from 'lucide-react';
 import jsPDF from 'jspdf';
 
+export type LetterType = 'appointment' | 'offer' | 'relieving' | 'termination';
+
 interface LetterData {
-  type: 'appointment' | 'relieving' | 'termination';
+  type: LetterType;
   companyName: string;
   candidateName: string;
   position: string;
@@ -35,9 +37,61 @@ interface LetterData {
 }
 
 export default function LetterGenerator() {
-  const [letterType, setLetterType] = useState<'appointment' | 'relieving' | 'termination'>('appointment');
+  const [letterType, setLetterType] = useState<LetterType>('appointment');
   const [showPreview, setShowPreview] = useState(false);
   const letterRef = useRef<HTMLDivElement>(null);
+  const [base64Logo, setBase64Logo] = useState<string>('');
+
+  // Load and pre-optimize company logo for jsPDF
+  const getOptimizedLogoBase64 = async (): Promise<string | null> => {
+    if (base64Logo) return base64Logo;
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = '/Images/Tcgtech.png';
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Failed to load image'));
+      });
+
+      const canvas = document.createElement('canvas');
+      const targetWidth = 400; // ample for print clarity (~400 DPI at 25mm)
+      const targetHeight = Math.round((img.height / img.width) * targetWidth);
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+        const dataUrl = canvas.toDataURL('image/png');
+        setBase64Logo(dataUrl);
+        return dataUrl;
+      }
+      return null;
+    } catch (err) {
+      console.warn('Canvas optimization failed, falling back to direct fetch', err);
+      try {
+        const response = await fetch('/Images/Tcgtech.png');
+        const blob = await response.blob();
+        return new Promise<string | null>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const res = reader.result as string;
+            setBase64Logo(res);
+            resolve(res);
+          };
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(blob);
+        });
+      } catch (fallbackErr) {
+        console.error('Failed to load logo:', fallbackErr);
+        return null;
+      }
+    }
+  };
+
+  useEffect(() => {
+    getOptimizedLogoBase64();
+  }, []);
   
   const [letterData, setLetterData] = useState<LetterData>({
     type: 'appointment',
@@ -108,11 +162,11 @@ export default function LetterGenerator() {
     return letterData.authorizedSignatoryDesignation;
   };
 
-  const downloadLetterPDF = () => {
+  const downloadLetterPDF = async () => {
     if (!letterRef.current) return;
 
     // Validate custom fields
-    if (letterType === 'appointment') {
+    if (letterType === 'appointment' || letterType === 'offer') {
       if (letterData.salaryType === 'custom' && !letterData.salary.trim()) {
         alert('Please enter salary amount when Custom salary type is selected');
         return;
@@ -131,6 +185,8 @@ export default function LetterGenerator() {
       }
     }
 
+    const logoData = await getOptimizedLogoBase64();
+
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
     const margin = 20;
@@ -139,55 +195,77 @@ export default function LetterGenerator() {
     // Set font
     pdf.setFont('helvetica');
     
-    if (letterType === 'appointment') {
-      // Page 1: Appointment Letter Header and Main Content
-      // Center title first
+    if (letterType === 'appointment' || letterType === 'offer') {
+      const isOffer = letterType === 'offer';
+      const docTitle = isOffer ? 'OFFER LETTER' : 'APPOINTMENT LETTER';
+
+      // Page 1: Header
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('APPOINTMENT LETTER', pageWidth / 2, 30, { align: 'center' });
+      pdf.setTextColor(37, 99, 235); // Blue
+      pdf.text(docTitle, pageWidth / 2, 22, { align: 'center' });
+      pdf.setTextColor(0, 0, 0);
       
-      // Logo on left, contact info on right
-      pdf.setFontSize(16);
+      // Logo on left
+      if (logoData) {
+        try {
+          pdf.addImage(logoData, 'PNG', margin, 26, 24, 21);
+        } catch (e) {
+          console.warn('Error adding logo to PDF:', e);
+          pdf.setFontSize(16);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('TCG TECH', margin, 38);
+        }
+      } else {
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('TCG TECH', margin, 38);
+      }
+      
+      // Company Info on right
+      pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('TCG TECH', margin, 55);
-      
-      pdf.setFontSize(10);
+      pdf.text('TCG TECH', pageWidth - margin, 30, { align: 'right' });
+      pdf.setFontSize(9);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Email: contact@tcgtech.in', pageWidth - margin - 60, 55);
-      pdf.text('Phone: 8072099570', pageWidth - margin - 60, 61);
+      pdf.setTextColor(100, 116, 139);
+      pdf.text('Email: contact@tcgtech.in', pageWidth - margin, 36, { align: 'right' });
+      pdf.text('Phone: 8072099570', pageWidth - margin, 41, { align: 'right' });
+      pdf.setTextColor(0, 0, 0);
+
+      // Separator line
+      pdf.setDrawColor(226, 232, 240);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, 50, pageWidth - margin, 50);
       
       // Recipient details
-      let yPosition = 80;
-      pdf.text(`Dear ${letterData.candidateName || '[Candidate Name]'},`, margin, yPosition);
-      yPosition += 10;
-      
-      pdf.text('We are pleased to offer you the position of:', margin, yPosition);
-      yPosition += 8;
-      
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(letterData.position || '[Position]', margin + 10, yPosition);
-      yPosition += 8;
-      
+      let yPosition = 58;
+      pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('in the ' + (letterData.department || '[Department]') + ' department at TCG TECH, with a joining date of ' + (letterData.startDate ? new Date(letterData.startDate).toLocaleDateString('de-DE') : '[DD.MM.YYYY]') + '.', margin + 10, yPosition);
-      yPosition += 15;
+      pdf.text(`Dear ${letterData.candidateName || '[Candidate Name]'},`, margin, yPosition);
+      yPosition += 8;
+      
+      const introText = isOffer
+        ? `We are pleased to offer you the position of ${letterData.position || '[Position]'} in the ${letterData.department || '[Department]'} department at TCG TECH, with a joining date of ${letterData.startDate ? new Date(letterData.startDate).toLocaleDateString('de-DE') : '[DD.MM.YYYY]'}.`
+        : `We are pleased to appoint you to the position of ${letterData.position || '[Position]'} in the ${letterData.department || '[Department]'} department at TCG TECH, with a joining date of ${letterData.startDate ? new Date(letterData.startDate).toLocaleDateString('de-DE') : '[DD.MM.YYYY]'}.`;
+
+      const introLines = pdf.splitTextToSize(introText, contentWidth);
+      pdf.text(introLines, margin, yPosition);
+      yPosition += (introLines.length * 5) + 6;
       
       // Job Description section
       pdf.setFont('helvetica', 'bold');
       pdf.text('Job Description:', margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
+      pdf.setFont('helvetica', 'normal');
       
-      // Use custom job description if provided, otherwise use default responsibilities
       if (letterData.jobDescription && letterData.jobDescription.trim()) {
-        pdf.setFont('helvetica', 'normal');
-        const jobDescLines = pdf.splitTextToSize(letterData.jobDescription, contentWidth - 30);
+        const jobDescLines = pdf.splitTextToSize(letterData.jobDescription, contentWidth - 10);
         jobDescLines.forEach((line: string) => {
-          pdf.text(line, margin + 10, yPosition);
-          yPosition += 6;
+          pdf.text(line, margin + 5, yPosition);
+          yPosition += 5;
         });
       } else {
-        // Default responsibilities
-        pdf.setFont('helvetica', 'normal');
         const responsibilities = [
           '• Perform assigned duties and responsibilities as per the job description',
           '• Maintain high standards of work quality and professionalism',
@@ -195,149 +273,175 @@ export default function LetterGenerator() {
           '• Follow company policies and procedures',
           '• Meet performance targets and deadlines'
         ];
-        
-        responsibilities.forEach((responsibility) => {
-          pdf.text(responsibility, margin + 10, yPosition);
-          yPosition += 6;
+        responsibilities.forEach((resp) => {
+          pdf.text(resp, margin + 5, yPosition);
+          yPosition += 5;
         });
       }
       
-      yPosition += 10;
+      yPosition += 6;
       
       // Employment Terms section
       pdf.setFont('helvetica', 'bold');
       pdf.text('Employment Terms:', margin, yPosition);
-      yPosition += 8;
-      
+      yPosition += 6;
       pdf.setFont('helvetica', 'normal');
       
-      // Only display fields that have values
-      const employmentTerms = [];
-      
+      const employmentTerms: string[] = [];
       if (letterData.employmentType && letterData.employmentType.trim()) {
         employmentTerms.push(`• Employment Type: ${getDisplayEmploymentType()}`);
       }
-      
-      // Use salary display helper
       const salaryDisplay = getSalaryDisplay();
       if (salaryDisplay && salaryDisplay !== '[Salary]') {
         employmentTerms.push(`• Annual Salary: ${salaryDisplay}`);
       }
-      
       if (letterData.startDate && letterData.startDate.trim()) {
         employmentTerms.push(`• Start Date: ${letterData.startDate}`);
       }
-      
-      // Use work type display helper
       const workTypeDisplay = getWorkTypeDisplay();
       if (workTypeDisplay && workTypeDisplay !== '[Work Type]') {
         employmentTerms.push(`• Work Type: ${workTypeDisplay}`);
       }
-      
       if (letterData.workingHours && letterData.workingHours.trim()) {
         employmentTerms.push(`• Working Hours: ${letterData.workingHours}`);
       }
-      
-      // Use probation display helper
       const probationDisplay = getProbationDisplay();
       if (probationDisplay && probationDisplay !== '[Probation Period]') {
         employmentTerms.push(`• Probation Period: ${probationDisplay}`);
       }
-      
       if (letterData.reportingTo && letterData.reportingTo.trim()) {
         employmentTerms.push(`• Reporting To: ${letterData.reportingTo}`);
       }
-      
-      // Display only filled terms
+      if (letterData.benefits && letterData.benefits.trim()) {
+        employmentTerms.push(`• Benefits: ${letterData.benefits}`);
+      }
+
       employmentTerms.forEach((term) => {
-        pdf.text(term, margin + 10, yPosition);
-        yPosition += 6;
+        const termLines = pdf.splitTextToSize(term, contentWidth - 10);
+        pdf.text(termLines, margin + 5, yPosition);
+        yPosition += (termLines.length * 5);
       });
       
-      yPosition += 9;
+      yPosition += 6;
       
-      pdf.text('Please confirm your acceptance of this offer by signing below:', margin, yPosition);
-      yPosition += 20;
+      const acceptanceText = isOffer
+        ? 'Please confirm your acceptance of this offer by signing below:'
+        : 'Please confirm your acceptance of this appointment by signing below:';
+      pdf.text(acceptanceText, margin, yPosition);
+      yPosition += 16;
       
-      // Signature lines
-      const signatoryText = (letterData.authorizedSignatoryName || '[Name]') + ', ' + getAuthorizedSignatoryDesignation();
-      pdf.text(signatoryText, pageWidth - 80, yPosition);
-      pdf.text('Authorized Signatory', pageWidth - 80, yPosition + 5);
+      // Ensure signature block fits cleanly on Page 1 (needs ~30mm)
+      if (yPosition + 30 > 275) {
+        pdf.addPage();
+        yPosition = 30;
+      }
       
-      pdf.text('Candidate Signature', margin, yPosition + 5);
+      const signatoryName = letterData.authorizedSignatoryName.trim() || 'Authorized Signatory';
+      const signatoryDesignation = getAuthorizedSignatoryDesignation();
+
+      // Left side: Candidate Signature
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('_________________________________', margin, yPosition);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(letterData.candidateName.trim() || '[Candidate Name]', margin, yPosition + 5);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Candidate Signature', margin, yPosition + 10);
+
+      // Right side: Authorized Signatory
+      const rightX = pageWidth - margin - 65;
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('For TCG TECH', rightX, yPosition - 5);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('_________________________________', rightX, yPosition);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(signatoryName, rightX, yPosition + 5);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${signatoryDesignation} / Authorized Signatory`, rightX, yPosition + 10);
       
-      // Add new page for Rules and Regulations
+      // Add Page 2: Rules and Regulations
       pdf.addPage();
       
-      // Page 2: Rules and Regulations
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('TCG TECH - Rules and Regulations', margin, 30);
+      pdf.setTextColor(37, 99, 235);
+      pdf.text('TCG TECH - Rules and Regulations', margin, 25);
+      pdf.setTextColor(0, 0, 0);
       
-      yPosition = 50;
-      pdf.setFontSize(12);
+      let page2Y = 40;
+      pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('1. Working Hours and Attendance', margin, yPosition);
-      yPosition += 8;
+      pdf.text('1. Working Hours and Attendance', margin, page2Y);
+      page2Y += 7;
       pdf.setFont('helvetica', 'normal');
-      pdf.text(`${letterData.workingHours}`, margin + 5, yPosition);
-      yPosition += 8;
-      pdf.text('• Punctuality is essential. Late arrivals may affect performance evaluation', margin + 5, yPosition);
-      yPosition += 6;
-      pdf.text('• Prior approval required for any leave or absence', margin + 5, yPosition);
-      yPosition += 10;
+      pdf.setFontSize(10);
+      pdf.text(`${letterData.workingHours}`, margin + 5, page2Y);
+      page2Y += 6;
+      pdf.text('• Punctuality is essential. Late arrivals may affect performance evaluation', margin + 5, page2Y);
+      page2Y += 5;
+      pdf.text('• Prior approval required for any leave or absence', margin + 5, page2Y);
+      page2Y += 9;
       
+      pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('2. Probation Period', margin, yPosition);
-      yPosition += 8;
+      pdf.text('2. Probation Period', margin, page2Y);
+      page2Y += 7;
       pdf.setFont('helvetica', 'normal');
-      pdf.text(`• Probation period: ${getProbationDisplay()}`, margin + 5, yPosition);
-      yPosition += 6;
-      pdf.text('• Performance will be evaluated during probation', margin + 5, yPosition);
-      yPosition += 6;
-      pdf.text('• Confirmation subject to satisfactory performance', margin + 5, yPosition);
-      yPosition += 10;
+      pdf.setFontSize(10);
+      pdf.text(`• Probation period: ${getProbationDisplay()}`, margin + 5, page2Y);
+      page2Y += 5;
+      pdf.text('• Performance will be evaluated during probation', margin + 5, page2Y);
+      page2Y += 5;
+      pdf.text('• Confirmation subject to satisfactory performance', margin + 5, page2Y);
+      page2Y += 9;
       
+      pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('3. Confidentiality', margin, yPosition);
-      yPosition += 8;
+      pdf.text('3. Confidentiality', margin, page2Y);
+      page2Y += 7;
       pdf.setFont('helvetica', 'normal');
-      pdf.text('• All company information is confidential', margin + 5, yPosition);
-      yPosition += 6;
-      pdf.text('• Do not disclose sensitive information to external parties', margin + 5, yPosition);
-      yPosition += 6;
-      pdf.text('• Maintain data security and privacy standards', margin + 5, yPosition);
-      yPosition += 10;
+      pdf.setFontSize(10);
+      pdf.text('• All company information is confidential', margin + 5, page2Y);
+      page2Y += 5;
+      pdf.text('• Do not disclose sensitive information to external parties', margin + 5, page2Y);
+      page2Y += 5;
+      pdf.text('• Maintain data security and privacy standards', margin + 5, page2Y);
+      page2Y += 9;
       
+      pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('4. Code of Conduct', margin, yPosition);
-      yPosition += 8;
+      pdf.text('4. Code of Conduct', margin, page2Y);
+      page2Y += 7;
       pdf.setFont('helvetica', 'normal');
-      pdf.text('• Maintain professional behavior at all times', margin + 5, yPosition);
-      yPosition += 6;
-      pdf.text('• Respect colleagues and clients', margin + 5, yPosition);
-      yPosition += 6;
-      pdf.text('• Follow company dress code and policies', margin + 5, yPosition);
-      yPosition += 10;
+      pdf.setFontSize(10);
+      pdf.text('• Maintain professional behavior at all times', margin + 5, page2Y);
+      page2Y += 5;
+      pdf.text('• Respect colleagues and clients', margin + 5, page2Y);
+      page2Y += 5;
+      pdf.text('• Follow company dress code and policies', margin + 5, page2Y);
+      page2Y += 9;
       
+      pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('5. Property and Equipment', margin, yPosition);
-      yPosition += 8;
+      pdf.text('5. Property and Equipment', margin, page2Y);
+      page2Y += 7;
       pdf.setFont('helvetica', 'normal');
-      pdf.text('• Company property must be used responsibly', margin + 5, yPosition);
-      yPosition += 6;
-      pdf.text('• Return all equipment upon termination', margin + 5, yPosition);
-      yPosition += 6;
-      pdf.text('• Report any damage or loss immediately', margin + 5, yPosition);
-      yPosition += 15;
+      pdf.setFontSize(10);
+      pdf.text('• Company property must be used responsibly', margin + 5, page2Y);
+      page2Y += 5;
+      pdf.text('• Return all equipment upon termination', margin + 5, page2Y);
+      page2Y += 5;
+      pdf.text('• Report any damage or loss immediately', margin + 5, page2Y);
+      page2Y += 12;
       
       // NDA Section
+      pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Non-Disclosure Agreement (NDA)', margin, yPosition);
-      yPosition += 10;
+      pdf.text('Non-Disclosure Agreement (NDA)', margin, page2Y);
+      page2Y += 7;
       pdf.setFont('helvetica', 'normal');
-      pdf.text('By signing this offer letter, you agree to:', margin, yPosition);
-      yPosition += 8;
+      pdf.setFontSize(10);
+      pdf.text(`By signing this ${isOffer ? 'offer' : 'appointment'} letter, you agree to:`, margin, page2Y);
+      page2Y += 6;
       
       const ndaPoints = [
         '• Maintain confidentiality of all proprietary information',
@@ -348,223 +452,286 @@ export default function LetterGenerator() {
       ];
       
       ndaPoints.forEach((point) => {
-        pdf.text(point, margin + 5, yPosition);
-        yPosition += 6;
+        pdf.text(point, margin + 5, page2Y);
+        page2Y += 5;
       });
       
-      yPosition += 10;
-      pdf.text('Violation of this NDA may result in legal action.', margin, yPosition);
-      
-      yPosition += 20;
+      page2Y += 8;
+      pdf.text('Violation of this NDA may result in legal action.', margin, page2Y);
+      page2Y += 16;
       
       // Employee signature for NDA
-      pdf.text('_________________________', margin, yPosition);
-      pdf.text('Employee Signature', margin, yPosition + 5);
+      pdf.text('_________________________', margin, page2Y);
+      pdf.text('Employee Signature', margin, page2Y + 5);
       
     } else if (letterType === 'relieving') {
       // Relieving Letter (Single Page)
-      // Center title first
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('RELIEVING LETTER', pageWidth / 2, 30, { align: 'center' });
+      pdf.setTextColor(22, 163, 74); // Green
+      pdf.text('RELIEVING LETTER', pageWidth / 2, 22, { align: 'center' });
+      pdf.setTextColor(0, 0, 0);
       
-      // Logo on left, contact info on right
-      pdf.setFontSize(16);
+      // Logo on left
+      if (logoData) {
+        try {
+          pdf.addImage(logoData, 'PNG', margin, 26, 24, 21);
+        } catch (e) {
+          pdf.setFontSize(16);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('TCG TECH', margin, 38);
+        }
+      } else {
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('TCG TECH', margin, 38);
+      }
+      
+      // Company info on right
+      pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('TCG TECH', margin, 55);
-      
-      pdf.setFontSize(10);
+      pdf.text('TCG TECH', pageWidth - margin, 30, { align: 'right' });
+      pdf.setFontSize(9);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Email: contact@tcgtech.in', pageWidth - margin - 60, 55);
-      pdf.text('Phone: 8072099570', pageWidth - margin - 60, 61);
+      pdf.setTextColor(100, 116, 139);
+      pdf.text('Email: contact@tcgtech.in', pageWidth - margin, 36, { align: 'right' });
+      pdf.text('Phone: 8072099570', pageWidth - margin, 41, { align: 'right' });
+      pdf.setTextColor(0, 0, 0);
+
+      // Separator line
+      pdf.setDrawColor(226, 232, 240);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, 50, pageWidth - margin, 50);
       
       // Employee details
-      let yPosition = 75;
+      let yPosition = 58;
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
       pdf.text('To:', margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
       pdf.setFont('helvetica', 'bold');
       pdf.text(letterData.candidateName || '[Employee Name]', margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text(letterData.position || '[Position]', margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text(letterData.department || '[Department]', margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('TCG TECH', margin + 10, yPosition);
-      yPosition += 15;
+      yPosition += 10;
       
       pdf.setFont('helvetica', 'normal');
       pdf.text('Dear ' + (letterData.candidateName || '[Employee Name]') + ',', margin, yPosition);
-      yPosition += 10;
+      yPosition += 8;
       
-      pdf.text('This letter serves as formal notification that your employment with TCG TECH is being terminated.', margin, yPosition);
-      yPosition += 10;
+      pdf.text('This letter serves as formal notification that your employment with TCG TECH has been concluded.', margin, yPosition);
+      yPosition += 9;
       
       pdf.setFont('helvetica', 'bold');
       pdf.text('Employment Details:', margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
       
       pdf.setFont('helvetica', 'normal');
       pdf.text('Position: ' + (letterData.position || '[Position]'), margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('Department: ' + (letterData.department || '[Department]'), margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('Last Working Day: ' + (letterData.lastWorkingDay || '[Last Working Day]'), margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('Notice Period: ' + letterData.noticePeriod, margin + 10, yPosition);
-      yPosition += 15;
+      yPosition += 9;
       
       pdf.setFont('helvetica', 'bold');
       pdf.text('Reason for Relieving:', margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
       
       pdf.setFont('helvetica', 'normal');
       const reasonLines = pdf.splitTextToSize(letterData.terminationReason || '[Reason for Relieving]', contentWidth - 20);
       reasonLines.forEach((line: string) => {
         pdf.text(line, margin + 10, yPosition);
-        yPosition += 6;
+        yPosition += 5;
       });
-      yPosition += 10;
+      yPosition += 7;
       
       pdf.setFont('helvetica', 'bold');
       pdf.text('Exit Formalities:', margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
       
       pdf.setFont('helvetica', 'normal');
       const exitLines = pdf.splitTextToSize(letterData.exitFormalities, contentWidth - 20);
       exitLines.forEach((line: string) => {
         pdf.text(line, margin + 10, yPosition);
-        yPosition += 6;
+        yPosition += 5;
       });
-      yPosition += 15;
+      yPosition += 9;
       
-      pdf.text('For any clarification regarding the termination process, please contact:', margin, yPosition);
-      yPosition += 8;
+      pdf.text('For any clarification regarding the relieving process, please contact:', margin, yPosition);
+      yPosition += 6;
       pdf.text(letterData.contactPerson + ' - ' + letterData.contactEmail + ' - ' + letterData.contactPhone, margin + 10, yPosition);
-      yPosition += 15;
+      yPosition += 10;
       
       pdf.text('We wish you the best in your future endeavors.', margin, yPosition);
-      yPosition += 20;
+      yPosition += 14;
       
       // Signature
       pdf.text('Sincerely,', margin, yPosition);
-      yPosition += 15;
+      yPosition += 10;
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('For TCG TECH', margin, yPosition);
+      yPosition += 6;
+      pdf.setFont('helvetica', 'normal');
       pdf.text('_________________________', margin, yPosition);
-      pdf.text(letterData.contactPerson, margin, yPosition + 5);
-      pdf.text('HR Manager', margin, yPosition + 10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(letterData.authorizedSignatoryName.trim() || letterData.contactPerson || 'Authorized Signatory', margin, yPosition + 5);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${getAuthorizedSignatoryDesignation()} / HR Manager`, margin, yPosition + 10);
       pdf.text('TCG TECH', margin, yPosition + 15);
     } else {
       // Termination Letter (Single Page)
-      // Center title first
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('TERMINATION LETTER', pageWidth / 2, 30, { align: 'center' });
+      pdf.setTextColor(220, 38, 38); // Red
+      pdf.text('TERMINATION LETTER', pageWidth / 2, 22, { align: 'center' });
+      pdf.setTextColor(0, 0, 0);
       
-      // Logo on left, contact info on right
-      pdf.setFontSize(16);
+      // Logo on left
+      if (logoData) {
+        try {
+          pdf.addImage(logoData, 'PNG', margin, 26, 24, 21);
+        } catch (e) {
+          pdf.setFontSize(16);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('TCG TECH', margin, 38);
+        }
+      } else {
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('TCG TECH', margin, 38);
+      }
+      
+      // Company info on right
+      pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('TCG TECH', margin, 55);
-      
-      pdf.setFontSize(10);
+      pdf.text('TCG TECH', pageWidth - margin, 30, { align: 'right' });
+      pdf.setFontSize(9);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Email: contact@tcgtech.in', pageWidth - margin - 60, 55);
-      pdf.text('Phone: 8072099570', pageWidth - margin - 60, 61);
+      pdf.setTextColor(100, 116, 139);
+      pdf.text('Email: contact@tcgtech.in', pageWidth - margin, 36, { align: 'right' });
+      pdf.text('Phone: 8072099570', pageWidth - margin, 41, { align: 'right' });
+      pdf.setTextColor(0, 0, 0);
+
+      // Separator line
+      pdf.setDrawColor(226, 232, 240);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, 50, pageWidth - margin, 50);
       
       // Employee details
-      let yPosition = 75;
+      let yPosition = 58;
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
       pdf.text('To:', margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
       pdf.setFont('helvetica', 'bold');
       pdf.text(letterData.candidateName || '[Employee Name]', margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text(letterData.position || '[Position]', margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text(letterData.department || '[Department]', margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('TCG TECH', margin + 10, yPosition);
-      yPosition += 15;
+      yPosition += 10;
       
       pdf.setFont('helvetica', 'normal');
       pdf.text('Dear ' + (letterData.candidateName || '[Employee Name]') + ',', margin, yPosition);
-      yPosition += 10;
+      yPosition += 8;
       
       pdf.text('This letter serves as formal notification that your employment with TCG TECH', margin, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('is being terminated effective ' + (letterData.lastWorkingDay || '[Termination Date]') + '.', margin, yPosition);
-      yPosition += 10;
+      yPosition += 8;
       
       pdf.setFont('helvetica', 'bold');
       pdf.text('Employment Details:', margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
       
       pdf.setFont('helvetica', 'normal');
       pdf.text('Position: ' + (letterData.position || '[Position]'), margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('Department: ' + (letterData.department || '[Department]'), margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('Termination Date: ' + (letterData.lastWorkingDay || '[Termination Date]'), margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('Notice Period: ' + letterData.noticePeriod, margin + 10, yPosition);
-      yPosition += 15;
+      yPosition += 9;
       
       pdf.setFont('helvetica', 'bold');
       pdf.text('Reason for Termination:', margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
       
       pdf.setFont('helvetica', 'normal');
       const terminationReasonLines = pdf.splitTextToSize(letterData.terminationReason || '[Reason for Termination]', contentWidth - 20);
       terminationReasonLines.forEach((line: string) => {
         pdf.text(line, margin + 10, yPosition);
-        yPosition += 6;
+        yPosition += 5;
       });
-      yPosition += 10;
+      yPosition += 7;
       
       pdf.setFont('helvetica', 'bold');
       pdf.text('Exit Formalities:', margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
       
       pdf.setFont('helvetica', 'normal');
       const terminationExitLines = pdf.splitTextToSize(letterData.exitFormalities, contentWidth - 20);
       terminationExitLines.forEach((line: string) => {
         pdf.text(line, margin + 10, yPosition);
-        yPosition += 6;
+        yPosition += 5;
       });
-      yPosition += 10;
+      yPosition += 7;
       
       pdf.text('You are required to return all company property, including but not limited to:', margin, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('• ID cards, access cards, and keys', margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('• Company-issued equipment (laptop, phone, etc.)', margin + 10, yPosition);
-      yPosition += 6;
+      yPosition += 5;
       pdf.text('• All confidential documents and materials', margin + 10, yPosition);
-      yPosition += 15;
+      yPosition += 9;
       
       pdf.text('For any clarification regarding the termination process, please contact:', margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
       pdf.text(letterData.contactPerson + ' - ' + letterData.contactEmail + ' - ' + letterData.contactPhone, margin + 10, yPosition);
-      yPosition += 20;
+      yPosition += 12;
       
       // Signature
       pdf.text('Sincerely,', margin, yPosition);
-      yPosition += 15;
+      yPosition += 10;
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('For TCG TECH', margin, yPosition);
+      yPosition += 6;
+      pdf.setFont('helvetica', 'normal');
       pdf.text('_________________________', margin, yPosition);
-      pdf.text(letterData.contactPerson, margin, yPosition + 5);
-      pdf.text('HR Manager', margin, yPosition + 10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(letterData.authorizedSignatoryName.trim() || letterData.contactPerson || 'Authorized Signatory', margin, yPosition + 5);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${getAuthorizedSignatoryDesignation()} / HR Manager`, margin, yPosition + 10);
       pdf.text('TCG TECH', margin, yPosition + 15);
     }
     
-    const fileName = letterType === 'appointment' 
-      ? `Appointment_Letter_${letterData.candidateName.replace(/\s+/g, '_')}.pdf`
+    const safeCandidateName = (letterData.candidateName || 'Candidate').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+    const fileName = letterType === 'offer'
+      ? `Offer_Letter_${safeCandidateName}.pdf`
+      : letterType === 'appointment'
+      ? `Appointment_Letter_${safeCandidateName}.pdf`
       : letterType === 'relieving'
-      ? `Relieving_Letter_${letterData.candidateName.replace(/\s+/g, '_')}.pdf`
-      : `Termination_Letter_${letterData.candidateName.replace(/\s+/g, '_')}.pdf`;
+      ? `Relieving_Letter_${safeCandidateName}.pdf`
+      : `Termination_Letter_${safeCandidateName}.pdf`;
     
     pdf.save(fileName);
   };
 
-  const resetForm = () => {
+  const resetForm = (newType?: LetterType) => {
+    const targetType = newType || letterType;
     setLetterData({
-      type: letterType,
+      type: targetType,
       companyName: 'TCG TECH',
       candidateName: '',
       position: '',
@@ -597,6 +764,17 @@ export default function LetterGenerator() {
     setShowPreview(false);
   };
 
+  const handleLetterTypeSelect = (type: LetterType) => {
+    // If switching between offer and appointment, preserve form values!
+    if ((letterType === 'appointment' || letterType === 'offer') && (type === 'appointment' || type === 'offer')) {
+      setLetterType(type);
+      setLetterData(prev => ({ ...prev, type }));
+      return;
+    }
+    setLetterType(type);
+    resetForm(type);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -606,7 +784,7 @@ export default function LetterGenerator() {
           <button
             onClick={() => {
               // Validate custom fields before preview
-              if (letterType === 'appointment') {
+              if (letterType === 'appointment' || letterType === 'offer') {
                 if (letterData.salaryType === 'custom' && !letterData.salary.trim()) {
                   alert('Please enter salary amount when Custom salary type is selected');
                   return;
@@ -644,35 +822,46 @@ export default function LetterGenerator() {
       {/* Letter Type Selection */}
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h3 className="text-lg font-semibold mb-4">Select Letter Type</h3>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <button
-            onClick={() => { setLetterType('appointment'); resetForm(); }}
+            onClick={() => handleLetterTypeSelect('offer')}
+            className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
+              letterType === 'offer'
+                ? 'bg-blue-600 text-white shadow'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <FileCheck className="h-5 w-5 mr-2" />
+            Offer Letter
+          </button>
+          <button
+            onClick={() => handleLetterTypeSelect('appointment')}
             className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
               letterType === 'appointment'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-blue-600 text-white shadow'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             <Briefcase className="h-5 w-5 mr-2" />
             Appointment Letter
           </button>
           <button
-            onClick={() => { setLetterType('relieving'); resetForm(); }}
+            onClick={() => handleLetterTypeSelect('relieving')}
             className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
               letterType === 'relieving'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-green-600 text-white shadow'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             <FileText className="h-5 w-5 mr-2" />
             Relieving Letter
           </button>
           <button
-            onClick={() => { setLetterType('termination'); resetForm(); }}
+            onClick={() => handleLetterTypeSelect('termination')}
             className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
               letterType === 'termination'
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-red-600 text-white shadow'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             <AlertCircle className="h-5 w-5 mr-2" />
@@ -685,12 +874,49 @@ export default function LetterGenerator() {
         /* Form */
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h3 className="text-lg font-semibold mb-6">
-            {letterType === 'appointment' ? 'Appointment Letter Details' : letterType === 'relieving' ? 'Relieving Letter Details' : 'Termination Letter Details'}
+            {letterType === 'offer'
+              ? 'Offer Letter Details'
+              : letterType === 'appointment'
+              ? 'Appointment Letter Details'
+              : letterType === 'relieving'
+              ? 'Relieving Letter Details'
+              : 'Termination Letter Details'}
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {letterType === 'appointment' ? (
+            {letterType === 'appointment' || letterType === 'offer' ? (
               <>
+                {/* Switcher between Offer and Appointment */}
+                <div className="md:col-span-2 p-3 bg-blue-50 border border-blue-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+                  <div>
+                    <span className="text-sm font-semibold text-blue-900">Document Type:</span>
+                    <p className="text-xs text-blue-700">Switch between Offer Letter and Appointment Letter without losing entered data</p>
+                  </div>
+                  <div className="inline-flex rounded-lg bg-white p-1 border border-blue-200 shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => handleLetterTypeSelect('offer')}
+                      className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                        letterType === 'offer'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'text-gray-700 hover:text-blue-600'
+                      }`}
+                    >
+                      Offer Letter
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleLetterTypeSelect('appointment')}
+                      className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                        letterType === 'appointment'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'text-gray-700 hover:text-blue-600'
+                      }`}
+                    >
+                      Appointment Letter
+                    </button>
+                  </div>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Candidate Name *</label>
                   <input
@@ -1151,19 +1377,55 @@ export default function LetterGenerator() {
         /* Preview */
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div ref={letterRef} className="max-w-4xl mx-auto">
-            {letterType === 'appointment' ? (
-              /* Appointment Letter Preview */
+            {letterType === 'appointment' || letterType === 'offer' ? (
+              /* Appointment & Offer Letter Preview */
               <div className="space-y-6">
+                {/* Switcher bar in Preview */}
+                <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-blue-900 font-semibold uppercase tracking-wider">Format:</span>
+                    <span className="text-sm font-bold text-blue-700">
+                      {letterType === 'offer' ? 'Offer Letter' : 'Appointment Letter'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleLetterTypeSelect('offer')}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                        letterType === 'offer'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-white text-blue-700 border border-blue-300 hover:bg-blue-100'
+                      }`}
+                    >
+                      Offer Letter
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleLetterTypeSelect('appointment')}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                        letterType === 'appointment'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-white text-blue-700 border border-blue-300 hover:bg-blue-100'
+                      }`}
+                    >
+                      Appointment Letter
+                    </button>
+                  </div>
+                </div>
+
                 {/* Header with Logo and Company Info */}
                 <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-blue-600 mb-6">APPOINTMENT LETTER</h2>
+                  <h2 className="text-3xl font-bold text-blue-600 mb-6">
+                    {letterType === 'offer' ? 'OFFER LETTER' : 'APPOINTMENT LETTER'}
+                  </h2>
                   
                   <div className="flex justify-between items-start">
                     <div className="text-left">
                       <img 
                         src="/Images/Tcgtech.png"
                         alt="TCG TECH Logo"
-                        className="h-16 w-16"
+                        className="h-16 w-16 object-contain"
                       />
                     </div>
                     <div className="text-right">
@@ -1179,9 +1441,12 @@ export default function LetterGenerator() {
                   <p>Dear <strong>{letterData.candidateName || '[Candidate Name]'}</strong>,</p>
                   
                   <p>
-                    We are pleased to offer you the position of <strong>{letterData.position || '[Position]'}</strong> 
-                    in the <strong>{letterData.department || '[Department]'}</strong> department at TCG TECH, 
-                    with a joining date of <strong>{letterData.startDate ? new Date(letterData.startDate).toLocaleDateString('de-DE') : '[DD.MM.YYYY]'}</strong>.
+                    {letterType === 'offer'
+                      ? 'We are pleased to offer you the position of '
+                      : 'We are pleased to appoint you to the position of '}
+                    <strong>{letterData.position || '[Position]'}</strong> in the{' '}
+                    <strong>{letterData.department || '[Department]'}</strong> department at TCG TECH, with a joining date of{' '}
+                    <strong>{letterData.startDate ? new Date(letterData.startDate).toLocaleDateString('de-DE') : '[DD.MM.YYYY]'}</strong>.
                   </p>
                   
                   {letterData.jobDescription && letterData.jobDescription.trim() ? (
@@ -1225,21 +1490,27 @@ export default function LetterGenerator() {
                     {letterData.reportingTo && letterData.reportingTo.trim() && (
                       <p>• Reporting To: {letterData.reportingTo}</p>
                     )}
+                    {letterData.benefits && letterData.benefits.trim() && (
+                      <p>• Benefits: {letterData.benefits}</p>
+                    )}
                   </div>
                   
-                                    
                   <p>
-                    Please confirm your acceptance of this offer by signing below. 
-                    This offer is subject to satisfactory background verification and document verification.
+                    Please confirm your acceptance of this {letterType === 'offer' ? 'offer' : 'appointment'} by signing below.{' '}
+                    This {letterType === 'offer' ? 'offer' : 'appointment'} is subject to satisfactory background verification and document verification.
                   </p>
                   
                   <div className="grid grid-cols-2 gap-8 mt-12 items-end">
                     <div>
+                      <div className="w-56 border-b border-gray-400 mb-2"></div>
+                      <p className="text-sm font-semibold text-gray-800">{letterData.candidateName || '[Candidate Name]'}</p>
                       <p className="text-sm text-gray-600">Candidate Signature</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 font-semibold">{letterData.authorizedSignatoryName || '[Name]'}, {getAuthorizedSignatoryDesignation()}</p>
-                      <p className="text-sm text-gray-600">Authorized Signatory</p>
+                      <p className="text-sm font-bold text-gray-800 mb-1">For TCG TECH</p>
+                      <div className="w-56 border-b border-gray-400 mb-2"></div>
+                      <p className="text-sm font-semibold text-gray-800">{letterData.authorizedSignatoryName || '[Authorized Signatory Name]'}</p>
+                      <p className="text-sm text-gray-600">{getAuthorizedSignatoryDesignation()} / Authorized Signatory</p>
                     </div>
                   </div>
                 </div>
@@ -1299,7 +1570,7 @@ export default function LetterGenerator() {
                   <div className="mt-8 p-4 bg-blue-50 rounded-lg">
                     <h4 className="font-bold text-blue-800 mb-3">Non-Disclosure Agreement (NDA)</h4>
                     <p className="text-sm text-gray-700 mb-3">
-                      By signing this offer letter, you agree to:
+                      By signing this {letterType === 'offer' ? 'offer' : 'appointment'} letter, you agree to:
                     </p>
                     <ul className="list-disc list-inside ml-8 space-y-1 text-sm text-gray-700">
                       <li>Maintain confidentiality of all proprietary information</li>
