@@ -81,6 +81,8 @@ export interface QuotationData {
   // Terms & Delivery
   estimatedTimeline: string;
   warrantyPeriod: string;
+  amcAmount?: number | string;
+  amcDetails?: string;
   paymentMilestones: PaymentMilestone[];
   termsAndConditions: string[];
   additionalNotes: string;
@@ -340,6 +342,8 @@ export default function QuotationGenerator() {
 
     estimatedTimeline: '4 to 6 Weeks from Project Kickoff',
     warrantyPeriod: '3 Months Free Bug-Fix & Technical Support',
+    amcAmount: '',
+    amcDetails: 'Annual Maintenance Contract (Server Monitoring, Security Patches, Bug Fixes & Technical Support)',
     paymentMilestones: [
       { percentage: 40, description: 'Advance Payment upon Project Initiation & Agreement' },
       { percentage: 40, description: 'Upon Beta Delivery & Client Milestone Review' },
@@ -606,6 +610,8 @@ export default function QuotationGenerator() {
         currency: 'INR',
         estimatedTimeline: '4 to 6 Weeks',
         warrantyPeriod: '3 Months Free Bug-Fix Support',
+        amcAmount: '',
+        amcDetails: 'Annual Maintenance Contract (Server Monitoring, Security Patches, Bug Fixes & Technical Support)',
         paymentMilestones: [
           { percentage: 40, description: 'Advance Payment upon Project Initiation' },
           { percentage: 40, description: 'Upon Beta Delivery & Client Milestone Review' },
@@ -843,6 +849,10 @@ export default function QuotationGenerator() {
                           new Paragraph({ children: [new TextRun({ text: `Date: ${new Date(data.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}` })] }),
                           new Paragraph({ children: [new TextRun({ text: `Valid Until: ${new Date(data.validUntil).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}` })] }),
                           new Paragraph({ children: [new TextRun({ text: `Estimated Delivery: ${data.estimatedTimeline}` })] }),
+                          new Paragraph({ children: [new TextRun({ text: `Warranty / Support: ${data.warrantyPeriod}` })] }),
+                          ...(Number(data.amcAmount) > 0 ? [
+                            new Paragraph({ children: [new TextRun({ text: `AMC Yearly Renewal: ${formatCurrency(Number(data.amcAmount))} / Year`, bold: true, color: 'D97706' })] })
+                          ] : []),
                           new Paragraph({ children: [new TextRun({ text: `Prepared By: ${data.preparedBy}` })] })
                         ]
                       })
@@ -894,6 +904,15 @@ export default function QuotationGenerator() {
                 spacing: { after: 200 },
                 children: [new TextRun({ text: `Amount in Words: ${numberToWords(grandTotal)}`, italics: true, size: 18, color: '475569' })]
               }),
+              ...(Number(data.amcAmount) > 0 ? [
+                new Paragraph({
+                  alignment: AlignmentType.RIGHT,
+                  spacing: { after: 200 },
+                  children: [
+                    new TextRun({ text: `AMC Yearly Renewal: ${formatCurrency(Number(data.amcAmount))} / Year (Annual Support after Warranty)`, bold: true, size: 20, color: 'D97706' })
+                  ]
+                })
+              ] : []),
 
               // Milestones Section
               new Paragraph({
@@ -1148,7 +1167,7 @@ export default function QuotationGenerator() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Estimated Delivery Timeline</label>
                   <input
@@ -1167,6 +1186,20 @@ export default function QuotationGenerator() {
                     onChange={(e) => setData({ ...data, warrantyPeriod: e.target.value })}
                     placeholder="e.g., 3 Months Free Support"
                     className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-amber-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                    <span>AMC Yearly Renewal (₹)</span>
+                    <span className="text-[10px] lowercase font-normal text-gray-400">optional</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={data.amcAmount ?? ''}
+                    onChange={(e) => setData({ ...data, amcAmount: e.target.value ? Number(e.target.value) : '' })}
+                    placeholder="e.g., 15000"
+                    className="w-full px-3 py-2 border border-amber-200 bg-amber-50/20 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 font-semibold"
                   />
                 </div>
               </div>
@@ -1564,6 +1597,37 @@ export default function QuotationGenerator() {
                   </div>
                 </div>
 
+                {/* AMC Yearly Renewal Setting */}
+                <div className="pt-3 border-t border-amber-200 bg-amber-50/40 p-3 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-amber-900 uppercase tracking-wider">
+                      AMC Yearly Renewal
+                    </label>
+                    {Number(data.amcAmount) > 0 && (
+                      <span className="text-xs font-black text-amber-700 bg-amber-100 px-2 py-0.5 rounded">
+                        ₹ {Number(data.amcAmount).toLocaleString('en-IN')} / Yr
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="number"
+                    min="0"
+                    value={data.amcAmount ?? ''}
+                    onChange={(e) => setData({ ...data, amcAmount: e.target.value ? Number(e.target.value) : '' })}
+                    placeholder="Enter AMC Renewal Amount (₹)"
+                    className="w-full px-3 py-1.5 border border-amber-300 rounded-lg text-sm bg-white font-semibold focus:ring-2 focus:ring-amber-500"
+                  />
+                  {Number(data.amcAmount) > 0 ? (
+                    <p className="text-[10px] text-amber-700">
+                      ✓ Included in quotation as Annual Maintenance Contract after warranty.
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-gray-500">
+                      Optional: Set annual renewal fee for software support & maintenance.
+                    </p>
+                  )}
+                </div>
+
                 {/* Signatory Settings */}
                 <div className="pt-4 border-t space-y-3">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Signatory Details</h4>
@@ -1648,33 +1712,24 @@ export default function QuotationGenerator() {
             className="w-full max-w-4xl bg-white p-8 md:p-12 shadow-2xl rounded-none border border-gray-200 text-gray-800 font-sans"
             style={{ minHeight: '1120px' }}
           >
-            {/* Header with TCG Tech Logo & Official Info */}
+            {/* Header with TCG Technology Official Info */}
             <div className="flex flex-col sm:flex-row justify-between items-start border-b-2 border-blue-600 pb-6 mb-6 gap-4">
-              <div className="flex items-center space-x-4">
-                <img
-                  id="tcg-quotation-logo"
-                  src={base64Logo || '/Images/Tcgtech.png'}
-                  alt="TCG TECH Logo"
-                  className="h-20 w-auto object-contain"
-                  crossOrigin="anonymous"
-                />
-                <div>
-                  <h1 className="text-2xl font-black tracking-tight text-gray-900">
-                    <span className="text-red-600">T</span>
-                    <span className="text-green-600">C</span>
-                    <span className="text-yellow-500">G</span>{' '}
-                    <span className="text-blue-600">TECHNOLOGY</span>
-                  </h1>
-                  <p className="text-[11px] text-gray-500 max-w-sm mt-0.5 leading-tight">
-                    {data.companyAddress}
-                  </p>
-                  <p className="text-[11px] text-gray-600 mt-1 font-medium">
-                    Email: <span className="text-blue-600">{data.companyEmail}</span> | Phone: {data.companyPhone}
-                  </p>
-                  <p className="text-[11px] text-gray-600 font-medium">
-                    Web: <span className="text-blue-600">{data.companyWebsite}</span>
-                  </p>
-                </div>
+              <div>
+                <h1 className="text-2xl font-black tracking-tight text-gray-900">
+                  <span className="text-red-600">T</span>
+                  <span className="text-green-600">C</span>
+                  <span className="text-yellow-500">G</span>{' '}
+                  <span className="text-blue-600">TECHNOLOGY</span>
+                </h1>
+                <p className="text-[11px] text-gray-500 max-w-sm mt-0.5 leading-tight">
+                  {data.companyAddress}
+                </p>
+                <p className="text-[11px] text-gray-600 mt-1 font-medium">
+                  Email: <span className="text-blue-600">{data.companyEmail}</span> | Phone: {data.companyPhone}
+                </p>
+                <p className="text-[11px] text-gray-600 font-medium">
+                  Web: <span className="text-blue-600">{data.companyWebsite}</span>
+                </p>
               </div>
 
               <div className="text-left sm:text-right">
@@ -1708,6 +1763,11 @@ export default function QuotationGenerator() {
                 <div className="text-xs font-bold text-blue-700 mb-1">{data.projectTitle}</div>
                 <div className="text-gray-600">Estimated Timeline: <span className="font-semibold text-gray-800">{data.estimatedTimeline}</span></div>
                 <div className="text-gray-600">Warranty / Support: <span className="font-semibold text-green-700">{data.warrantyPeriod}</span></div>
+                {Number(data.amcAmount) > 0 && (
+                  <div className="text-gray-600">
+                    AMC Yearly Renewal: <span className="font-semibold text-amber-700">₹ {Number(data.amcAmount).toLocaleString('en-IN')} / Year</span>
+                  </div>
+                )}
                 <div className="text-gray-600 mt-1">Lead Architect: <span className="font-semibold text-gray-800">{data.preparedBy}</span></div>
               </div>
             </div>
@@ -1762,6 +1822,30 @@ export default function QuotationGenerator() {
                     <span className="font-semibold text-blue-900">Note: </span>{data.additionalNotes}
                   </div>
                 )}
+
+                {/* AMC Renewal Box in Preview */}
+                {Number(data.amcAmount) > 0 && (
+                  <div className="p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="inline-block px-2 py-0.5 bg-amber-100 text-amber-800 font-bold text-[10px] uppercase rounded mb-1">
+                          Annual Maintenance Contract
+                        </span>
+                        <h5 className="font-bold text-gray-800 text-xs">Yearly AMC Renewal</h5>
+                        <p className="text-[11px] text-gray-600 mt-0.5">
+                          {data.amcDetails || 'Includes regular server maintenance, security patches, bug fixes & tech support after warranty.'}
+                        </p>
+                      </div>
+                      <div className="text-right pl-3 whitespace-nowrap">
+                        <span className="text-[10px] text-gray-500 block">Annual Fee</span>
+                        <span className="text-sm font-black text-amber-800">
+                          ₹ {Number(data.amcAmount).toLocaleString('en-IN')}
+                        </span>
+                        <span className="text-[10px] text-gray-500 block">/ Year</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="w-full sm:w-1/2 space-y-2 text-xs">
@@ -1807,6 +1891,18 @@ export default function QuotationGenerator() {
                 <div className="text-[10px] text-gray-500 italic text-right">
                   {numberToWords(grandTotal)}
                 </div>
+
+                {Number(data.amcAmount) > 0 && (
+                  <div className="mt-3 pt-2 border-t border-dashed border-amber-300 bg-amber-50/60 p-2.5 rounded-lg flex justify-between items-center text-xs">
+                    <div>
+                      <span className="font-bold text-amber-900 block">AMC Yearly Renewal:</span>
+                      <span className="text-[10px] text-amber-700">(Applicable after warranty period)</span>
+                    </div>
+                    <span className="font-black text-amber-800 text-sm">
+                      ₹ {Number(data.amcAmount).toLocaleString('en-IN')} / Year
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
